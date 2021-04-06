@@ -13,7 +13,7 @@ contract Nornir is ERC721, VRFConsumerBase {
 	address internal vrfCoordinator;
 	bytes32 internal keyHash;
 	uint256 internal fee;
-	uint256 internal lastBroughtBlock;
+	uint256 public lastBroughtBlock; // Return to internal for deployment
 
 	struct Viking {
 		uint256 strength; // Unattached
