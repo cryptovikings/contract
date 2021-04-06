@@ -23,6 +23,10 @@ module.exports = {
 	defaultNetwork: "hardhat",
 	networks: {
 		hardhat: {
+			forking: {
+				url: `https://eth-rinkeby.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY}`,
+				blockNumber: 8366188
+			},
 			accounts: [{
 				privateKey: process.env.SECRET,
 				balance: '100000000000000000000'
