@@ -116,7 +116,7 @@ contract Nornir is ERC721, VRFConsumerBase {
 		// Will store the base amount of the price reduction per bonding curve level
 		uint256 pillageStrength;
 		// Get the amount of blocks from the last brought Viking and this block
-		uint256 blockGap = lastBroughtBlock - block.number;
+		uint256 blockGap = block.number - lastBroughtBlock;
 
 		// Calculate the current price and pillageStrength from the amount of Vikings sold
 		if (currentSupply >= 9500) {
