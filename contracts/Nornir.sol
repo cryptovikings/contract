@@ -15,6 +15,9 @@ contract Nornir is ERC721, VRFConsumerBase {
 	uint256 internal fee;
 	uint256 public lastBroughtBlock; // Return to internal for deployment
 
+	// A figure set for block to pass before the price reduction begins
+	uint16 internal pillageStart = 540;
+
 	struct Viking {
 		uint256 strength; // Unattached
 		uint256 speed; // Shoes
@@ -112,8 +115,6 @@ contract Nornir is ERC721, VRFConsumerBase {
 		uint256 price;
 		// Will store the base amount of the price reduction per bonding curve level
 		uint256 pillageStrength;
-		// A figure set for block to pass before the price reduction begins
-		uint16 pillageStart = 540;
 		// Get the amount of blocks from the last brought Viking and this block
 		uint256 blockGap = lastBroughtBlock - block.number;
 
