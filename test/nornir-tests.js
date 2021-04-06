@@ -14,4 +14,26 @@ describe("Nornir Contract", function() {
 		Nornir = await ethers.getContractFactory("Nornir");
 		nornir = await Nornir.deploy(RINKEBY_VRF_COORDINATOR, RINKEBY_LINKTOKEN, RINKEBY_KEYHASH);
 	});
+
+	describe("Last Block Brought", function() {
+		it("Should return 0", async function () {
+			const lastBroughtBlock = await nornir.lastBroughtBlock();
+
+			const zero = BigNumber.from('0');
+
+			expect(lastBroughtBlock).to.equal(zero);
+		});
+
+		it("Should return 8366175", async function () {
+			const blockNumber = BigNumber.from('8366175');
+
+			await nornir.setLastBroughtBlock(blockNumber);
+
+			const lastBroughtBlock = await nornir.lastBroughtBlock();
+
+			expect(lastBroughtBlock).to.equal(blockNumber);
+		});
+	});
 });
+
+
