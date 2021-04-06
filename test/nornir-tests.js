@@ -5,7 +5,7 @@ describe("Nornir Contract", function() {
 	let Nornir;
 	let nornir;
 
-	beforeEach(async function () {
+	before(async function () {
 		// Set ChainLink Data - https://docs.chain.link/docs/vrf-contracts#config
 		const RINKEBY_VRF_COORDINATOR = '0xb3dCcb4Cf7a26f6cf6B120Cf5A73875B7BBc655B';
 		const RINKEBY_LINKTOKEN = '0x01BE23585060835E02B77ef475b0Cc51aA1e0709';
@@ -13,8 +13,6 @@ describe("Nornir Contract", function() {
 
 		Nornir = await ethers.getContractFactory("Nornir");
 		nornir = await Nornir.deploy(RINKEBY_VRF_COORDINATOR, RINKEBY_LINKTOKEN, RINKEBY_KEYHASH);
-
-		await nornir.deployed();
 	});
 
 	// describe("Mints", function() {
