@@ -14,39 +14,4 @@ describe("Nornir Contract", function() {
 		Nornir = await ethers.getContractFactory("Nornir");
 		nornir = await Nornir.deploy(RINKEBY_VRF_COORDINATOR, RINKEBY_LINKTOKEN, RINKEBY_KEYHASH);
 	});
-
-	// describe("Mints", function() {
-	// 	it("Mint a Viking", async function () {
-	// 		await nornir.requestRandomViking('1234', 'Fisher Price');
-	// 		const vikingCount = await nornir.totalSupply();
-	// 		const expectedCount = BigNumber.from('1');
-
-	// 		console.log(vikingCount);
-	// 		// nornir.getTotalSupply();
-	// 		expect(await vikingCount).to.equal(expectedCount);
-
-	// 	});
-	// });
-
-	// describe("Price", function() {
-	// 	it("Should return 20000000000000000", async function () {
-	// 		const price = await nornir.calculatePrice();
-	// 		const expectedPrice = BigNumber.from('20000000000000000');
-
-	// 		console.log({price, expectedPrice});
-
-
-	// 		expect(price).to.equal(expectedPrice);
-	// 	});
-	// });
-
-	describe("Total Supply", function() {
-		it("Should return 0", async function () {
-
-			// console.log(nornir);
-			// nornir.totalSupply();
-			expect(await nornir.totalSupply()).to.equal(0);
-
-		});
-	});
 });
