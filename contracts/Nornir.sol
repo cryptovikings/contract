@@ -157,7 +157,7 @@ contract Nornir is ERC721, VRFConsumerBase {
 				price = maxPillage;
 			}
 			else {
-				price = pillageForce;
+				price-= pillageForce;
 			}
 		}
 
