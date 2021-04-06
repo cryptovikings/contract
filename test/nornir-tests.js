@@ -40,6 +40,42 @@ describe("Nornir Contract", function() {
 			expect(lastBroughtBlock).to.equal(blockNumber);
 		});
 	});
+
+	describe("Price", function() {
+		it("Should return 20000000000000000", async function () {
+			const price = await nornir.calculatePrice();
+			const expectedPrice = BigNumber.from('20000000000000000');
+
+
+			expect(price).to.equal(expectedPrice);
+		});
+
+		it("Should return between first level pillage price", async function () {
+			// Set the prices we're testing against
+			const initialPrice = BigNumber.from('20000000000000000');
+			const maxPillagePrice = BigNumber.from('10000000000000000');
+
+			// Get the current block
+			const currentBlock = await ethers.provider.getBlock();
+			// Get the current block's number
+			const currentBlockNumber = currentBlock.number;
+
+			// Set a figure for passed blocks
+			const blockPassed = 600;
+
+			// Create a number for the lastBlockBrought to be set to
+			const testBlockNumber = currentBlockNumber - blockPassed;
+
+			// Set the last block brought
+			await nornir.setLastBroughtBlock(BigNumber.from(testBlockNumber));
+
+
+			// Calculate the price
+			const price = await nornir.calculatePrice();
+			expect(price).to.be.below(initialPrice);
+			expect(price).to.be.above(maxPillagePrice);
+		});
+	});
 });
 
 
