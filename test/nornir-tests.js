@@ -15,6 +15,12 @@ describe("Nornir Contract", function() {
 		nornir = await Nornir.deploy(RINKEBY_VRF_COORDINATOR, RINKEBY_LINKTOKEN, RINKEBY_KEYHASH);
 	});
 
+	describe("Total Supply", function() {
+		it("Should return 0", async function () {
+			expect(await nornir.totalSupply()).to.equal(0);
+		});
+	});
+
 	describe("Last Block Brought", function() {
 		it("Should return 0", async function () {
 			const lastBroughtBlock = await nornir.lastBroughtBlock();
