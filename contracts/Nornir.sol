@@ -45,8 +45,7 @@ contract Nornir is ERC721, VRFConsumerBase {
 	}
 
 	function requestRandomViking(uint256 userProvidedSeed, string memory _name) public returns (bytes32) {
-		// bytes32 requestId = requestRandomness(keyHash, fee, userProvidedSeed);
-		bytes32 requestId = 0x7465737400000000000000000000000000000000000000000000000000000000;
+		bytes32 requestId = requestRandomness(keyHash, fee, userProvidedSeed);
 
 		requestToVikingName[requestId] = _name;
 
