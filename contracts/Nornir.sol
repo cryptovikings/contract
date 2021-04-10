@@ -13,19 +13,26 @@ contract Nornir is ERC721, VRFConsumerBase {
 	address internal vrfCoordinator;
 	bytes32 internal keyHash;
 	uint256 internal fee;
-	uint256 public lastBroughtBlock; // Return to internal for deployment
+	uint256 public lastBroughtBlock = 8385912; // Return to internal for deployment
 
 	// A figure set for block to pass before the price reduction begins
 	uint16 internal pillageStart = 540;
 
 	struct Viking {
-		uint256 strength; // Unattached
-		uint256 speed; // Shoes
-		uint256 stamina; // Top
-		uint256 attack; // Weapon
-		uint256 defence; // Sheild
-		uint256 intelligence; // Unattached
-		string name;
+		// Speed & Boots
+		string boots_style;
+		uint256 speed;
+		// Weapon & Attack
+		string weapon_style;
+		uint256 attack;
+		// Sheild & Defence
+		string shield_style;
+		uint256 defence;
+		// Helmet and Intelligence
+		string helmet_style;
+		uint256 intelligence;
+		// Bottoms & Stamina
+		string bottoms_style;
 	}
 
 	Viking[] public vikings;
@@ -47,10 +54,28 @@ contract Nornir is ERC721, VRFConsumerBase {
 		fee = 0.1 * 10**18;
 	}
 
-	function requestRandomViking(uint256 userProvidedSeed, string memory _name) public returns (bytes32) {
-		bytes32 requestId = requestRandomness(keyHash, fee, userProvidedSeed);
+	function traitNumberToName(uint256 value) internal pure returns (string memory) {
+		string memory _traitName;
 
-		requestToVikingName[requestId] = _name;
+		if (value >= 97) {
+			_traitName = 'perfect';
+		} else if (value >= 91) {
+			_traitName = 'good';
+		} else if (value >= 76) {
+			_traitName = 'worn';
+		} else if (value >= 51) {
+			_traitName = 'damaged';
+		} else if (value >= 11) {
+			_traitName = 'broken';
+		} else {
+			_traitName = 'none';
+		}
+
+		return _traitName;
+	}
+
+	function requestRandomViking() public returns (bytes32) {
+		bytes32 requestId = requestRandomness(keyHash, fee, block.timestamp);
 
 		requestToSender[requestId] = msg.sender;
 
@@ -59,33 +84,41 @@ contract Nornir is ERC721, VRFConsumerBase {
 
 	function fulfillRandomness(bytes32 requestId, uint256 randomNumber) internal override {
 		// Emit an event for the random number. Just for intrigue sake
-		emit RandomNumberCreated(requestId, randomNumber);
-
-		uint256 newId = vikings.length;
-
-		// Create random trait values from the random number
-		uint256 strength = (randomNumber % 100);
-		uint256 speed = ((randomNumber % 10000) / 100);
-		uint256 stamina = ((randomNumber % 1000000) / 10000);
-		uint256 attack = ((randomNumber % 100000000) / 1000000);
-		uint256 defence = ((randomNumber % 10000000000) / 100000000);
-		uint256 intelligence = ((randomNumber % 1000000000000) / 10000000000);
+		// emit RandomNumberCreated(requestId, randomNumber);
 
 		// Add the new viking to the vikings collction
 		vikings.push(
 			Viking(
-				strength,
-				speed,
-				stamina,
-				attack,
-				defence,
-				intelligence,
-				requestToVikingName[requestId]
+				// boots_style
+				traitNumberToName((randomNumber % 100)),
+				// speed
+				(randomNumber % 10000) / 100,
+				// weapon_style
+				traitNumberToName((randomNumber % 1000000) / 10000),
+				// attack
+				(randomNumber % 100000000) / 1000000,
+				// shield_style
+				traitNumberToName((randomNumber % 10000000000) / 100000000),
+				// defence
+				(randomNumber % 1000000000000) / 10000000000,
+				// helmet_style
+				traitNumberToName((randomNumber % 100000000000000) / 1000000000000),
+				// intelligence
+				(randomNumber % 10000000000000000) / 100000000000000,
+				// bottoms_style
+				traitNumberToName((randomNumber % 1000000000000000000) / 10000000000000000)
 			)
 		);
 
 		// Mint the Viking
+		mint(requestId);
+	}
+
+	function mint(bytes32 requestId) internal {
+		uint256 newId = vikings.length - 1;
+
 		_safeMint(requestToSender[requestId], newId);
+
 		// Update the last brought block number
 		lastBroughtBlock = block.number;
 	}
@@ -106,8 +139,6 @@ contract Nornir is ERC721, VRFConsumerBase {
 	function calculatePrice() public view returns (uint256) {
 		// Get the current amount of minted Vikings
 		uint currentSupply = totalSupply();
-
-		console.log(currentSupply);
 
 		require(currentSupply < MAX_VIKINGS, "Sale ended");
 
@@ -152,6 +183,11 @@ contract Nornir is ERC721, VRFConsumerBase {
 			// Set the force of the pillage. Base pillage strength plus the amount of blocks pass since pillage start
 			uint256 pillageForce = pillageStrength * blockCount;
 
+			console.log('maxPillage: ', maxPillage);
+			console.log('blockCount: ', blockCount);
+			console.log('pillageForce: ', pillageForce);
+
+
 			// If pillage force is above the max reduction set to max reduction
 			if (pillageForce >= maxPillage) {
 				price = maxPillage;
@@ -160,6 +196,9 @@ contract Nornir is ERC721, VRFConsumerBase {
 				price-= pillageForce;
 			}
 		}
+
+		console.log('price: ', price);
+
 
 		return price;
 	}
