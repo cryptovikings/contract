@@ -1,49 +1,46 @@
-pragma solidity >=0.6.0 <0.8.0;
+pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "@chainlink/contracts/src/v0.6/VRFConsumerBase.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@chainlink/contracts/src/v0.8/dev/VRFConsumerBase.sol";
 import "hardhat/console.sol";
 
-contract Nornir is ERC721, VRFConsumerBase {
+contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsumerBase {
 
 	event RandomNumberCreated(bytes32 requestId, uint256 randomNumber);
 
 	uint16 public constant MAX_VIKINGS = 9873;
 
-	address internal vrfCoordinator;
-	bytes32 internal keyHash;
-	uint256 internal fee;
-	uint256 public lastBroughtBlock = 8385912; // Return to internal for deployment
-
 	// A figure set for block to pass before the price reduction begins
 	uint16 internal pillageStart = 540;
 
+	uint256 public lastBroughtBlock = 8385912; // Return to internal for deployment
+	uint256 internal fee;
+	bytes32 internal keyHash;
+	address internal vrfCoordinator;
+
 	struct Viking {
-		// Speed & Boots
-		string boots_style;
-		uint256 speed;
-		// Weapon & Attack
-		string weapon_style;
-		uint256 attack;
-		// Sheild & Defence
-		string shield_style;
-		uint256 defence;
-		// Helmet and Intelligence
-		string helmet_style;
-		uint256 intelligence;
-		// Bottoms & Stamina
-		string bottoms_style;
+		uint256 weapon; // 0 - 99, indicating the weapon type
+		uint256 attack; // 0 - 99, indicating attack stat + weapon condition
+		uint256 shield; // 0 - 99, indicating the shieldtype
+		uint256 defence; // 0 - 99, indicating defence stat + shield condition
+		uint256 boots; // 0 - 99, indicating the bootstype
+		uint256 speed; // 0 - 99, indicating speed stat + boots condition
+		uint256 helmet; // 0 - 99, indicating the helmet type
+		uint256 intelligence; // 0 - 99, indicating intelligence stat + helmet condition
+		uint256 bottoms; // 0 - 99, indicating the bottoms type
+		uint256 stamina; // 0 - 99, indicating stamina stat + bottoms condition
+		uint256 appearance; // 8-digit number of 4 0-99 components, indicating body/top/face/beard types
 	}
 
 	Viking[] public vikings;
 
 	// Mappings
-	mapping(bytes32 => string) requestToVikingName;
 	mapping(bytes32 => address) requestToSender;
-	mapping(bytes32 => uint256) requestToTokenId;
 
 	constructor(address _VRFCoordinator, address _LinkToken, bytes32 _keyHash)
-		public
 		VRFConsumerBase(_VRFCoordinator, _LinkToken)
 		ERC721('Viking', 'VKNG')
 	{
@@ -54,27 +51,7 @@ contract Nornir is ERC721, VRFConsumerBase {
 		fee = 0.1 * 10**18;
 	}
 
-	function traitNumberToName(uint256 value) internal pure returns (string memory) {
-		string memory _traitName;
-
-		if (value >= 97) {
-			_traitName = 'perfect';
-		} else if (value >= 91) {
-			_traitName = 'good';
-		} else if (value >= 76) {
-			_traitName = 'worn';
-		} else if (value >= 51) {
-			_traitName = 'damaged';
-		} else if (value >= 11) {
-			_traitName = 'broken';
-		} else {
-			_traitName = 'none';
-		}
-
-		return _traitName;
-	}
-
-	function requestRandomViking() public returns (bytes32) {
+	function mintViking() public returns (bytes32) {
 		bytes32 requestId = requestRandomness(keyHash, fee, block.timestamp);
 
 		requestToSender[requestId] = msg.sender;
@@ -83,40 +60,32 @@ contract Nornir is ERC721, VRFConsumerBase {
 	}
 
 	function fulfillRandomness(bytes32 requestId, uint256 randomNumber) internal override {
-		// Emit an event for the random number. Just for intrigue sake
-		// emit RandomNumberCreated(requestId, randomNumber);
+		uint256 newId = vikings.length;
 
-		// Add the new viking to the vikings collction
+		// Set Viking stats
 		vikings.push(
 			Viking(
-				// boots_style
-				traitNumberToName((randomNumber % 100)),
-				// speed
+				// Weapon & Attack
+				(randomNumber % 100),
 				(randomNumber % 10000) / 100,
-				// weapon_style
-				traitNumberToName((randomNumber % 1000000) / 10000),
-				// attack
-				(randomNumber % 100000000) / 1000000,
-				// shield_style
-				traitNumberToName((randomNumber % 10000000000) / 100000000),
-				// defence
-				(randomNumber % 1000000000000) / 10000000000,
-				// helmet_style
-				traitNumberToName((randomNumber % 100000000000000) / 1000000000000),
-				// intelligence
-				(randomNumber % 10000000000000000) / 100000000000000,
-				// bottoms_style
-				traitNumberToName((randomNumber % 1000000000000000000) / 10000000000000000)
+				// Sheild & Defence
+				(randomNumber % 10**6) / 10**4,
+				(randomNumber % 10**8) / 10**6,
+				// Boots & Speed
+				(randomNumber % 10**10) / 10**8,
+				(randomNumber % 10**12) / 10**10,
+				// Helmet and Intelligence
+				(randomNumber % 10**14) / 10**12,
+				(randomNumber % 10**16) / 10**14,
+				// Bottoms & Stamina
+				(randomNumber % 10**18) / 10**16,
+				(randomNumber % 10**20) / 10**18,
+				// Appearance
+				(randomNumber % 10**28) / 10**20
 			)
 		);
 
 		// Mint the Viking
-		mint(requestId);
-	}
-
-	function mint(bytes32 requestId) internal {
-		uint256 newId = vikings.length - 1;
-
 		_safeMint(requestToSender[requestId], newId);
 
 		// Update the last brought block number
@@ -130,10 +99,6 @@ contract Nornir is ERC721, VRFConsumerBase {
 		);
 
 		_setTokenURI(tokenId, _tokenURI);
-	}
-
-	function setLastBroughtBlock(uint256 _blockNumber) public {
-		lastBroughtBlock = _blockNumber;
 	}
 
 	function calculatePrice() public view returns (uint256) {
@@ -183,11 +148,6 @@ contract Nornir is ERC721, VRFConsumerBase {
 			// Set the force of the pillage. Base pillage strength plus the amount of blocks pass since pillage start
 			uint256 pillageForce = pillageStrength * blockCount;
 
-			console.log('maxPillage: ', maxPillage);
-			console.log('blockCount: ', blockCount);
-			console.log('pillageForce: ', pillageForce);
-
-
 			// If pillage force is above the max reduction set to max reduction
 			if (pillageForce >= maxPillage) {
 				price = maxPillage;
@@ -197,9 +157,44 @@ contract Nornir is ERC721, VRFConsumerBase {
 			}
 		}
 
-		console.log('price: ', price);
-
-
 		return price;
 	}
+
+	function _beforeTokenTransfer(address from, address to, uint256 tokenId)
+		internal
+		override(ERC721, ERC721Enumerable)
+	{
+		super._beforeTokenTransfer(from, to, tokenId);
+	}
+
+	function _burn(uint256 tokenId) internal override(ERC721, ERC721URIStorage) {
+		super._burn(tokenId);
+	}
+
+	function tokenURI(uint256 tokenId)
+		public
+		view
+		override(ERC721, ERC721URIStorage)
+		returns (string memory)
+	{
+		return super.tokenURI(tokenId);
+	}
+
+	function supportsInterface(bytes4 interfaceId)
+		public
+		view
+		override(ERC721, ERC721Enumerable)
+		returns (bool)
+	{
+		return super.supportsInterface(interfaceId);
+	}
+
+	/**
+	* @dev Withdraw ether from this contract (Callable by owner)
+	*/
+	// function withdraw() onlyOwner public payable {
+	// 	uint balance = address(this).balance;
+	// 	msg.sender.transfer(balance);
+	// }
+
 }
