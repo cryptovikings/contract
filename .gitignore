@@ -4,3 +4,7 @@ artifacts
 #Hardhat files
 cache
 .env
+
+#PoC Directories
+matic
+frontend
