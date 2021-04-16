@@ -5,11 +5,10 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@chainlink/contracts/src/v0.8/dev/VRFConsumerBase.sol";
-import "hardhat/console.sol";
 
 contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsumerBase {
 
-	event RandomNumberCreated(bytes32 requestId, uint256 randomNumber);
+	event VikingMinted(uint256 id);
 
 	uint16 public constant MAX_VIKINGS = 9873;
 
@@ -47,16 +46,22 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 		vrfCoordinator = _VRFCoordinator;
 		keyHash = _keyHash;
 
-		// Hardcode fee set to 0.1 LINK
-		fee = 0.1 * 10**18;
+		// Hardcode fee set to 0.0001 LINK
+		fee = 0.1 * 10**15;
 	}
 
-	function mintViking() public returns (bytes32) {
-		bytes32 requestId = requestRandomness(keyHash, fee, block.timestamp);
+	function mintViking(uint256 vikingsToMint) public payable {
+		require(totalSupply() < MAX_VIKINGS, 'Sale ended');
+		require(vikingsToMint > 0 && vikingsToMint <= 50, 'You can only mint between 1 to 50 Vikings per TX');
+		require((totalSupply() + vikingsToMint) <= MAX_VIKINGS, 'Over MAX_VIKINGS limit');
+		require(msg.value >= (calculatePrice() * vikingsToMint), "Ether value sent is below the price");
 
-		requestToSender[requestId] = msg.sender;
+		for (uint i = 0; i < vikingsToMint; i++) {
+			bytes32 requestId = requestRandomness(keyHash, fee, block.timestamp);
+			requestToSender[requestId] = msg.sender;
+		}
 
-		return requestId;
+		// return requestId;
 	}
 
 	function fulfillRandomness(bytes32 requestId, uint256 randomNumber) internal override {
@@ -87,9 +92,13 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 
 		// Mint the Viking
 		_safeMint(requestToSender[requestId], newId);
+		// Set the tokens URI
+		// _setTokenURI(newId, newId);
 
 		// Update the last brought block number
 		lastBroughtBlock = block.number;
+
+		emit VikingMinted(newId);
 	}
 
 	function setTokenURI(uint256 tokenId, string memory _tokenURI) public {
@@ -196,5 +205,4 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 	// 	uint balance = address(this).balance;
 	// 	msg.sender.transfer(balance);
 	// }
-
 }
