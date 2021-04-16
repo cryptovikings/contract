@@ -7,10 +7,21 @@
 const hre = require("hardhat");
 
 async function main() {
+	const chain = 'mumbai';
+
 	// Set ChainLink Data - https://docs.chain.link/docs/vrf-contracts#config
-	const RINKEBY_VRF_COORDINATOR = '0xb3dCcb4Cf7a26f6cf6B120Cf5A73875B7BBc655B';
-	const RINKEBY_LINKTOKEN = '0x01BE23585060835E02B77ef475b0Cc51aA1e0709';
-	const RINKEBY_KEYHASH = '0x2ed0feb3e7fd2022120aa84fab1945545a9f2ffc9076fd6156fa96eaff4c1311';
+	const ChainLinkData = {
+		rinkeby: {
+			vrfCoordinator: '0xb3dCcb4Cf7a26f6cf6B120Cf5A73875B7BBc655B',
+			linkToken: '0x01BE23585060835E02B77ef475b0Cc51aA1e0709',
+			keyHash: '0x2ed0feb3e7fd2022120aa84fab1945545a9f2ffc9076fd6156fa96eaff4c1311',
+		},
+		mumbai: {
+			vrfCoordinator: '0x8C7382F9D8f56b33781fE506E897a4F1e2d17255',
+			linkToken: '0x326C977E6efc84E512bB9C30f76E30c160eD06FB',
+			keyHash: '0x6e75b569a01ef56d18cab6a8e71e6600d6ce853834d4a5748b720d06f878b3a4',
+		},
+	};
 
 	const [deployer] = await hre.ethers.getSigners();
 
@@ -22,7 +33,12 @@ async function main() {
 	console.log("Account balance:", (await deployer.getBalance()).toString());
 
 	const Nornir = await hre.ethers.getContractFactory('Nornir');
-	const nornir = await Nornir.deploy(RINKEBY_VRF_COORDINATOR, RINKEBY_LINKTOKEN, RINKEBY_KEYHASH);
+
+	const nornir = await Nornir.deploy(
+		ChainLinkData[chain].vrfCoordinator,
+		ChainLinkData[chain].linkToken,
+		ChainLinkData[chain].keyHash
+	);
 
 	console.log('Token Address: ', nornir.address);
 }
