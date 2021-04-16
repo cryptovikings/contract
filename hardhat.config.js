@@ -43,6 +43,10 @@ module.exports = {
 		rinkeby: {
 			url: process.env.RINKEBY_URL,
 			accounts: [process.env.SECRET]
+		},
+		mumbai: {
+			url: "https://rpc-mumbai.maticvigil.com",
+			accounts: [process.env.SECRET]
 		}
 	},
 	solidity: {
