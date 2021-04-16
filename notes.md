@@ -44,6 +44,10 @@ When this is done, we need to make the following changes to the contract...
 
 HardHat plugin to verify contract. [Docs](https://github.com/nomiclabs/hardhat/tree/master/packages/hardhat-etherscan)
 
+`npx hardhat verify --network mainnet DEPLOYED_CONTRACT_ADDRESS "Constructor argument 1"`
+
+`npx hardhat verify --network rinkeby DEPLOYED_CONTRACT_ADDRESS "0xb3dCcb4Cf7a26f6cf6B120Cf5A73875B7BBc655B" "0x01BE23585060835E02B77ef475b0Cc51aA1e0709" "0x2ed0feb3e7fd2022120aa84fab1945545a9f2ffc9076fd6156fa96eaff4c1311"`
+
 ## Bonding Curve
 
 This covers the sale idea. In short, a dipping bonding curve.
