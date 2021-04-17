@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
@@ -8,8 +9,10 @@ import "@chainlink/contracts/src/v0.8/dev/VRFConsumerBase.sol";
 
 contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsumerBase {
 
+	// Events
 	event VikingMinted(uint256 id);
 
+	// Constants
 	uint16 public constant MAX_VIKINGS = 9873;
 
 	// A figure set for block to pass before the price reduction begins
@@ -21,6 +24,7 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 	bytes32 internal keyHash;
 	address internal vrfCoordinator;
 
+	// Structs
 	struct Viking {
 		uint256 weapon; // 0 - 99, indicating the weapon type
 		uint256 attack; // 0 - 99, indicating attack stat + weapon condition
@@ -35,6 +39,7 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 		uint256 appearance; // 8-digit number of 4 0-99 components, indicating body/top/face/beard types
 	}
 
+	// Mappings
 	Viking[] public vikings;
 
 	// Mappings
