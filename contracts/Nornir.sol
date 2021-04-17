@@ -13,7 +13,8 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 	uint16 public constant MAX_VIKINGS = 9873;
 
 	// A figure set for block to pass before the price reduction begins
-	uint16 internal pillageStart = 540;
+	// Up'd for the sake of Polygon. Will calculate propely soon
+	uint16 internal pillageStart = 3000;
 
 	uint256 public lastBroughtBlock = 8385912; // Return to internal for deployment
 	uint256 internal fee;
