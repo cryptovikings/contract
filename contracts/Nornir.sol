@@ -14,6 +14,7 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 
 	// Constants
 	uint16 public constant MAX_VIKINGS = 9873;
+	uint16 public constant MAX_BULK = 50;
 
 	// A figure set for block to pass before the price reduction begins
 	// Up'd for the sake of Polygon. Will calculate propely soon
@@ -57,10 +58,17 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 	}
 
 	function mintViking(uint256 vikingsToMint) public payable {
+		uint256 mintPrice;
 		require(totalSupply() < MAX_VIKINGS, 'Sale ended');
-		require(vikingsToMint > 0 && vikingsToMint <= 50, 'You can only mint between 1 to 50 Vikings per TX');
+		require(vikingsToMint > 0 && vikingsToMint <= MAX_BULK, 'You can only mint between 1 to 50 Vikings per TX');
 		require((totalSupply() + vikingsToMint) <= MAX_VIKINGS, 'Over MAX_VIKINGS limit');
-		require(msg.value >= (calculatePrice() * vikingsToMint), "Ether value sent is below the price");
+
+		if (vikingsToMint > 1) {
+			mintPrice = calculateBulkPrice(vikingsToMint);
+		}
+		else {
+			mintPrice = calculatePrice();
+		}
 
 		for (uint i = 0; i < vikingsToMint; i++) {
 			bytes32 requestId = requestRandomness(keyHash, fee, block.timestamp);
