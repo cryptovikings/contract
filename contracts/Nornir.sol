@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@chainlink/contracts/src/v0.8/dev/VRFConsumerBase.sol";
+import "interfaces/IWeth.sol";
 
 contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsumerBase {
 
@@ -16,6 +17,10 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 	uint16 public constant MAX_VIKINGS = 9873;
 	uint16 public constant MAX_BULK = 50;
 
+	// Interfaces
+	IWeth WETHContract;
+
+	// Variables
 	// A figure set for block to pass before the price reduction begins
 	// Up'd for the sake of Polygon. Will calculate propely soon
 	uint16 internal pillageStart = 3000;
@@ -50,11 +55,19 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 		VRFConsumerBase(_VRFCoordinator, _LinkToken)
 		ERC721('Viking', 'VKNG')
 	{
+		// Set wETH data
+		WETHContract = IWeth(address(0xA6FA4fB5f76172d178d61B04b0ecd319C5d1C0aa));
+
+		// Set Chainlink data
 		vrfCoordinator = _VRFCoordinator;
 		keyHash = _keyHash;
 
 		// Hardcode fee set to 0.0001 LINK
 		fee = 0.1 * 10**15;
+	}
+
+	function approveWETH(address _spender, uint256 _value) public returns (bool) {
+		return WETHContract.approve(_spender, _value);
 	}
 
 	function mintViking(uint256 vikingsToMint) public payable {
