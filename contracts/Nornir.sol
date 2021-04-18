@@ -84,6 +84,10 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 			mintPrice = calculatePrice();
 		}
 
+		require(WETHContract.transferFrom(msg.sender, address(this), mintPrice) == true, "Not enough WETH");
+
+		WETHContract.transfer(address(TREASURY), mintPrice);
+
 		for (uint i = 0; i < vikingsToMint; i++) {
 			bytes32 requestId = requestRandomness(keyHash, fee, block.timestamp);
 			requestToSender[requestId] = msg.sender;
