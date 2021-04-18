@@ -26,7 +26,7 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 	// Up'd for the sake of Polygon. Will calculate propely soon
 	uint16 internal pillageStart = 3000;
 
-	uint256 public lastBroughtBlock = 8385912; // Return to internal for deployment
+	uint256 public lastBroughtBlock = 12796958; // Return to internal for deployment
 	uint256 internal fee;
 	bytes32 internal keyHash;
 	address internal vrfCoordinator;
@@ -67,8 +67,8 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 		fee = 0.1 * 10**15;
 	}
 
-	function approveWETH(address _spender, uint256 _value) public returns (bool) {
-		return WETHContract.approve(_spender, _value);
+	function balanceWETH() public view returns (uint256) {
+		return WETHContract.balanceOf(msg.sender);
 	}
 
 	function mintViking(uint256 vikingsToMint) public payable {
@@ -92,8 +92,6 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 			bytes32 requestId = requestRandomness(keyHash, fee, block.timestamp);
 			requestToSender[requestId] = msg.sender;
 		}
-
-		// return requestId;
 	}
 
 	function fulfillRandomness(bytes32 requestId, uint256 randomNumber) internal override {
@@ -124,8 +122,6 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 
 		// Mint the Viking
 		_safeMint(requestToSender[requestId], newId);
-		// Set the tokens URI
-		// _setTokenURI(newId, newId);
 
 		// Update the last brought block number
 		lastBroughtBlock = block.number;
@@ -276,12 +272,4 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 	{
 		return super.supportsInterface(interfaceId);
 	}
-
-	/**
-	* @dev Withdraw ether from this contract (Callable by owner)
-	*/
-	// function withdraw() onlyOwner public payable {
-	// 	uint balance = address(this).balance;
-	// 	msg.sender.transfer(balance);
-	// }
 }
