@@ -205,8 +205,8 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 
 		// Will store the bulk price for the Viking to be brought
 		uint256 bulkPrice;
-		// Will store the initial price for the Viking to be brought
-		uint256 initialPrice;
+		// Will store the current curve price for the Viking to be brought
+		uint256 curvePrice;
 		// Will store the pillaged price if pillage started
 		uint256 pillagedPrice = 0;
 
@@ -215,29 +215,29 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 
 		// Calculate the current price and pillageStrength from the amount of Vikings sold
 		if (currentSupply >= 9500) {
-			initialPrice = 1000000000000000000; // 9500 - 9873: 1.00 ETH
+			curvePrice = 1000000000000000000; // 9500 - 9873: 1.00 ETH
 		} else if (currentSupply >= 9000) {
-			initialPrice = 640000000000000000; // 9000 - 9500: 0.64 ETH
+			curvePrice = 640000000000000000; // 9000 - 9500: 0.64 ETH
 		} else if (currentSupply >= 7500) {
-			initialPrice = 320000000000000000; // 7500 - 9000: 0.32 ETH
+			curvePrice = 320000000000000000; // 7500 - 9000: 0.32 ETH
 		} else if (currentSupply >= 3500) {
-			initialPrice = 160000000000000000; // 3500 - 7000: 0.16 ETH
+			curvePrice = 160000000000000000; // 3500 - 7000: 0.16 ETH
 		} else if (currentSupply >= 1500) {
-			initialPrice = 80000000000000000; // 1500 - 3500: 0.08 ETH
+			curvePrice = 80000000000000000; // 1500 - 3500: 0.08 ETH
 		} else if (currentSupply >= 500) {
-			initialPrice = 40000000000000000; // 500 - 1500: 0.04 ETH
+			curvePrice = 40000000000000000; // 500 - 1500: 0.04 ETH
 		} else {
-			initialPrice = 20000000000000000; // 0 - 500: 0.02 ETH
+			curvePrice = 20000000000000000; // 0 - 500: 0.02 ETH
 		}
 
 		// Check to see if the pillage started
 		if (blockGap > pillageStart) {
 			// Get the price of the pillaged Viking
 			pillagedPrice = calculatePrice();
-			bulkPrice = initialPrice * (qty - 1) + pillagedPrice;
+			bulkPrice = curvePrice * (qty - 1) + pillagedPrice;
 		}
 		else {
-			bulkPrice = initialPrice * qty;
+			bulkPrice = curvePrice * qty;
 		}
 
 		return bulkPrice;
