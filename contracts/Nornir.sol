@@ -11,7 +11,8 @@ import "interfaces/IWeth.sol";
 contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsumerBase {
 
 	// Events
-	event VikingMinted(uint256 id);
+	event VikingReady(bytes32 requestId);
+	event VikingGenerated(uint256 id);
 
 	// Constants
 	uint16 public constant MAX_VIKINGS = 9873;
@@ -51,6 +52,7 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 
 	// Mappings
 	mapping(bytes32 => address) requestToSender;
+	mapping(bytes32 => uint256) generatedRandom;
 
 	constructor(address _VRFCoordinator, address _LinkToken, bytes32 _keyHash)
 		VRFConsumerBase(_VRFCoordinator, _LinkToken)
@@ -71,7 +73,7 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 		return WETHContract.balanceOf(msg.sender);
 	}
 
-	function mintViking(uint256 vikingsToMint) public payable {
+	function mintViking(uint256 vikingsToMint) public {
 		uint256 mintPrice;
 		require(totalSupply() < MAX_VIKINGS, 'Sale ended');
 		require(vikingsToMint > 0 && vikingsToMint <= MAX_BULK, 'You can only mint between 1 to 50 Vikings per TX');
@@ -92,10 +94,25 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 			bytes32 requestId = requestRandomness(keyHash, fee, block.timestamp);
 			requestToSender[requestId] = msg.sender;
 		}
+
+		// Update the last brought block number
+		lastBroughtBlock = block.number;
 	}
 
 	function fulfillRandomness(bytes32 requestId, uint256 randomNumber) internal override {
-		uint256 newId = vikings.length;
+		uint256 newId = totalSupply();
+
+		generatedRandom[requestId] = randomNumber;
+
+		// Mint the Viking
+		_safeMint(requestToSender[requestId], newId);
+
+		emit VikingReady(requestId);
+	}
+
+	// TODO: Make an onlyOwner function
+	function generateViking(bytes32 requestId) public {
+		uint256 randomNumber = generatedRandom[requestId];
 
 		// Set Viking stats
 		vikings.push(
@@ -120,13 +137,7 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 			)
 		);
 
-		// Mint the Viking
-		_safeMint(requestToSender[requestId], newId);
-
-		// Update the last brought block number
-		lastBroughtBlock = block.number;
-
-		emit VikingMinted(newId);
+		emit VikingGenerated(vikings.length - 1);
 	}
 
 	function setTokenURI(uint256 tokenId, string memory _tokenURI) public {
@@ -140,7 +151,7 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 
 	function calculatePrice() public view returns (uint256) {
 		// Get the current amount of minted Vikings
-		uint currentSupply = totalSupply();
+		uint256 currentSupply = totalSupply();
 
 		require(currentSupply < MAX_VIKINGS, "Sale ended");
 
