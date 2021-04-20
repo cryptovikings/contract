@@ -23,9 +23,10 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 	IWeth WETHContract;
 
 	// Variables
-	// A figure set for block to pass before the price reduction begins
-	// Up'd for the sake of Polygon. Will calculate propely soon
-	uint16 internal pillageStart = 3000;
+	// A figure set for blocks to pass before the price reduction begins
+	// Polygon avg. block time = 2 second
+	// 2 hours / 2 seconds = 3600
+	uint16 internal pillageStart = 3600;
 
 	uint256 public lastBroughtBlock = 12796958; // Return to internal for deployment
 	uint256 internal fee;
@@ -160,27 +161,28 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 		uint256 blockGap = block.number - lastBroughtBlock;
 
 		// Calculate the current price and pillageStrength from the amount of Vikings sold
+		// Pillage strength calculated with the 2 second block avg. for Polygon in mind
 		if (currentSupply >= 9500) {
 			price = 1000000000000000000; // 9500 - 9873: 1.00 ETH
-			pillageStrength = 4000000000000000; // 0.0004 ETH
+			pillageStrength = 50000000000000; // 0.00005 ETH - Avg time: 33.33 min
 		} else if (currentSupply >= 9000) {
 			price = 640000000000000000; // 9000 - 9500: 0.64 ETH
-			pillageStrength = 400000000000000; // 0.0004 ETH
+			pillageStrength = 40000000000000; // 0.00004 ETH - Avg time: 1.11 hours
 		} else if (currentSupply >= 7500) {
 			price = 320000000000000000; // 7500 - 9000: 0.32 ETH
-			pillageStrength = 200000000000000; // 0.0002 ETH
+			pillageStrength = 20000000000000; // 0.00002 ETH - Avg time: 2.22 hours
 		} else if (currentSupply >= 3500) {
 			price = 160000000000000000; // 3500 - 7000: 0.16 ETH
-			pillageStrength = 200000000000000; // 0.0002 ETH
+			pillageStrength = 20000000000000; // 0.00002 ETH - Avg time: 2.22 hours
 		} else if (currentSupply >= 1500) {
 			price = 80000000000000000; // 1500 - 3500: 0.08 ETH
-			pillageStrength = 100000000000000; // 0.0001 ETH
+			pillageStrength = 10000000000000; // 0.00001 ETH - Avg time: 4.44 hours
 		} else if (currentSupply >= 500) {
 			price = 40000000000000000; // 500 - 1500: 0.04 ETH
-			pillageStrength = 100000000000000; // 0.0001 ETH
+			pillageStrength = 10000000000000; // 0.00001 ETH - Avg time: 4.44 hours
 		} else {
 			price = 20000000000000000; // 0 - 500: 0.02 ETH
-			pillageStrength = 100000000000000; // 0.0001 ETH
+			pillageStrength = 10000000000000; // 0.00001 ETH - Avg time: 5.55 hour
 		}
 
 		// Check to see if the pillage should start
