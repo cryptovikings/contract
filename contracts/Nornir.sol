@@ -69,10 +69,6 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 		fee = 0.1 * 10**15;
 	}
 
-	function balanceWETH() public view returns (uint256) {
-		return WETHContract.balanceOf(msg.sender);
-	}
-
 	function mintViking(uint256 vikingsToMint) public {
 		uint256 mintPrice;
 		require(totalSupply() < MAX_VIKINGS, 'Sale ended');
