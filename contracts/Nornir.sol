@@ -12,7 +12,7 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 
 	// Events
 	event VikingReady(bytes32 requestId);
-	event VikingGenerated(uint256 id);
+	event VikingGenerated(uint256 id, Viking vikingData);
 
 	// Constants
 	uint16 public constant MAX_VIKINGS = 9873;
@@ -109,6 +109,7 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 	// TODO: Make an onlyOwner function
 	function generateViking(bytes32 requestId) public {
 		uint256 randomNumber = generatedRandom[requestId];
+		uint256 newId = vikings.length;
 
 		// Set Viking stats
 		vikings.push(
@@ -133,7 +134,7 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 			)
 		);
 
-		emit VikingGenerated(vikings.length - 1);
+		emit VikingGenerated(newId, vikings[newId]);
 	}
 
 	function setTokenURI(uint256 tokenId, string memory _tokenURI) public {
