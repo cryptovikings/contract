@@ -46,7 +46,8 @@ module.exports = {
 		},
 		mumbai: {
 			url: "https://rpc-mumbai.maticvigil.com",
-			accounts: [process.env.SECRET]
+			accounts: [process.env.SECRET],
+			gasPrice: 1000000000
 		}
 	},
 	solidity: {
