@@ -5,10 +5,13 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 import "@chainlink/contracts/src/v0.8/dev/VRFConsumerBase.sol";
 import "interfaces/IWeth.sol";
 
 contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsumerBase {
+	// Library Usage
+	using Strings for uint256;
 
 	// Events
 	event VikingReady(bytes32 requestId);
@@ -18,6 +21,7 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 	uint16 public constant MAX_VIKINGS = 9873;
 	uint16 public constant MAX_BULK = 50;
 	address public constant TREASURY = 0xB2b8AA72D9CF3517f7644245Cf7bdc301E9F1c56;
+	string public constant BASE_URI = 'http://localhost:8080/api/viking/';
 
 	// Interfaces
 	IWeth WETHContract;
@@ -104,6 +108,9 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 		// Mint the Viking
 		_safeMint(requestToSender[requestId], newId);
 
+		// Set the Viking/Token URI
+		_setTokenURI(newId, newId.toString());
+
 		emit VikingReady(requestId);
 	}
 
@@ -136,15 +143,6 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 		);
 
 		emit VikingGenerated(newId, vikings[newId]);
-	}
-
-	function setTokenURI(uint256 tokenId, string memory _tokenURI) public {
-		require(
-			_isApprovedOrOwner(_msgSender(), tokenId),
-			'ERC721: transfer caller is not owner not approved'
-		);
-
-		_setTokenURI(tokenId, _tokenURI);
 	}
 
 	function calculatePrice() public view returns (uint256) {
@@ -254,6 +252,10 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 	}
 
 	// Overriding Functions
+	function _baseURI() internal pure override returns (string memory) {
+		return BASE_URI;
+	}
+
 	function _beforeTokenTransfer(address from, address to, uint256 tokenId)
 		internal
 		override(ERC721, ERC721Enumerable)
