@@ -80,12 +80,7 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 		require(vikingsToMint > 0 && vikingsToMint <= MAX_BULK, 'You can only mint between 1 to 50 Vikings per TX');
 		require((totalSupply() + vikingsToMint) <= MAX_VIKINGS, 'Over MAX_VIKINGS limit');
 
-		if (vikingsToMint > 1) {
-			mintPrice = calculateBulkPrice(vikingsToMint);
-		}
-		else {
-			mintPrice = calculatePrice();
-		}
+		mintPrice = calculatePrice(vikingsToMint);
 
 		require(WETHContract.transferFrom(msg.sender, address(this), mintPrice) == true, "Not enough WETH");
 
