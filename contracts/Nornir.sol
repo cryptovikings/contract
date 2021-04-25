@@ -154,7 +154,7 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 		pillageStarted = blockGap > pillageBuffer;
 
 		// Calculate the curve price and pillageStrength from the amount of Vikings sold
-		// Pillage strength calculated with the 2 second block avg. for Polygon in mind
+		// Pillage strength calculated with the 2 second block avg. of Polygon in mind
 		if (currentSupply >= 9500) {
 			curvePrice = 1000000000000000000; // 9500 - 9873: 1.00 ETH
 			pillageStrength = 50000000000000; // 0.00005 ETH - Avg time: 33.33 min
@@ -197,17 +197,6 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 		}
 
 		return (pillageStarted, curvePrice, pillagePrice);
-	}
-
-	function calculatePrice() public view returns (uint256) {
-		(bool pillageStarted, uint256 curvePrice, uint256 pillagePrice) = getPricing();
-
-		if (pillageStarted) {
-			return pillagePrice;
-		}
-		else {
-			return curvePrice;
-		}
 	}
 
 	function calculatePrice(uint256 qty) public view returns (uint256) {
