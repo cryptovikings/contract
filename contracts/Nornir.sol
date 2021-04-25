@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/Strings.sol";
-import "@chainlink/contracts/src/v0.8/dev/VRFConsumerBase.sol";
-import "interfaces/IWeth.sol";
+import '@openzeppelin/contracts/token/ERC721/ERC721.sol';
+import '@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol';
+import '@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol';
+import '@openzeppelin/contracts/access/Ownable.sol';
+import '@openzeppelin/contracts/utils/Strings.sol';
+import '@chainlink/contracts/src/v0.8/dev/VRFConsumerBase.sol';
+import 'interfaces/IWeth.sol';
 
 contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsumerBase {
 	// Library Usage
@@ -74,14 +74,21 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 	}
 
 	function mintViking(uint256 vikingsToMint) public {
-		uint256 mintPrice;
+		// Make sure sale isn't over
 		require(totalSupply() < MAX_VIKINGS, 'Sale ended');
+		// Make sure user is trying to mint within minting limits
 		require(vikingsToMint > 0 && vikingsToMint <= MAX_BULK, 'You can only mint between 1 to 50 Vikings per TX');
+		// Make sure users request to mint isn't over the maxiumum amout of Vikings
 		require((totalSupply() + vikingsToMint) <= MAX_VIKINGS, 'Over MAX_VIKINGS limit');
 
-		mintPrice = calculatePrice(vikingsToMint);
+		// Store how much it'll cost to mint
+		uint256 mintPrice = calculatePrice(vikingsToMint);
 
-		require(WETHContract.transferFrom(msg.sender, address(this), mintPrice) == true, "Not enough WETH");
+		// Make sure enough WETH has been approved to send
+		require(WETHContract.allowance(msg.sender, address(this)) >= mintPrice, 'Not enough WETH approved');
+
+		// Transfer mintPrice from users wallet to contract
+		require(WETHContract.transferFrom(msg.sender, address(this), mintPrice) == true, 'Not enough WETH for TX');
 
 		WETHContract.transfer(address(TREASURY), mintPrice);
 
@@ -142,7 +149,7 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 	function getPricing() public view returns (bool pillageStarted, uint256 curvePrice, uint256 pillagePrice) {
 		// Get the current amount of minted Vikings
 		uint256 currentSupply = totalSupply();
-		require(currentSupply < MAX_VIKINGS, "Sale ended");
+		require(currentSupply < MAX_VIKINGS, 'Sale ended');
 
 		// Will store the base amount of the price reduction per curve level
 		uint256 pillageStrength;
