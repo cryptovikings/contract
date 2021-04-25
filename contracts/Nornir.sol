@@ -56,7 +56,6 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 	Viking[] public vikings;
 
 	// Mappings
-	mapping(bytes32 => address) requestToSender;
 	mapping(bytes32 => uint256) generatedRandom;
 
 	constructor(address _VRFCoordinator, address _LinkToken, bytes32 _keyHash)
@@ -87,8 +86,16 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 		WETHContract.transfer(address(TREASURY), mintPrice);
 
 		for (uint i = 0; i < vikingsToMint; i++) {
-			bytes32 requestId = requestRandomness(keyHash, fee, block.timestamp);
-			requestToSender[requestId] = msg.sender;
+			uint256 newId = totalSupply();
+
+			// Mint the Viking
+			_safeMint(msg.sender, newId);
+
+			// Set the Viking/Token URI
+			_setTokenURI(newId, newId.toString());
+
+			// Request Randomness
+			requestRandomness(keyHash, fee, block.timestamp);
 		}
 
 		// Update the last brought block number
@@ -96,15 +103,7 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 	}
 
 	function fulfillRandomness(bytes32 requestId, uint256 randomNumber) internal override {
-		uint256 newId = totalSupply();
-
 		generatedRandom[requestId] = randomNumber;
-
-		// Mint the Viking
-		_safeMint(requestToSender[requestId], newId);
-
-		// Set the Viking/Token URI
-		_setTokenURI(newId, newId.toString());
 
 		emit VikingReady(requestId);
 	}
