@@ -1,26 +1,24 @@
 {
-  "name": "viking-nft",
-  "version": "1.0.0",
-  "description": "Test space for launching an NFT",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "@chainlink/contracts": "^0.1.6",
-    "@nomiclabs/hardhat-etherscan": "^2.1.1",
-    "@openzeppelin/contracts": "^4.0.0",
-    "@poanet/solidity-flattener": "^3.0.6",
-    "dotenv": "^8.2.0",
-    "hardhat": "^2.1.1"
-  },
-  "devDependencies": {
-    "@nomiclabs/hardhat-ethers": "^2.0.2",
-    "@nomiclabs/hardhat-waffle": "^2.0.1",
-    "chai": "^4.3.4",
-    "ethereum-waffle": "^3.3.0",
-    "ethers": "^5.0.32"
-  }
+	"name": "crypto_contract",
+	"version": "0.0.1",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"author": "",
+	"license": "ISC",
+	"dependencies": {
+		"@chainlink/contracts": "^0.1.7",
+		"@nomiclabs/hardhat-etherscan": "^2.1.1",
+		"@openzeppelin/contracts": "^4.0.0",
+		"@poanet/solidity-flattener": "^3.0.6",
+		"dotenv": "^8.2.0",
+		"hardhat": "^2.1.1"
+	},
+	"devDependencies": {
+		"@nomiclabs/hardhat-ethers": "^2.0.2",
+		"@nomiclabs/hardhat-waffle": "^2.0.1",
+		"chai": "^4.3.4",
+		"ethereum-waffle": "^3.3.0",
+		"ethers": "^5.1.3"
+	}
 }
