@@ -2,7 +2,8 @@
 	"name": "crypto_contract",
 	"version": "0.0.1",
 	"scripts": {
-		"test": "echo \"Error: no test specified\" && exit 1"
+		"flatten": "./node_modules/.bin/poa-solidity-flattener ./contracts/Nornir.sol",
+		"mumbai": "npx hardhat run --network mumbai scripts/deploy-nornir-contract.js"
 	},
 	"author": "",
 	"license": "ISC",
