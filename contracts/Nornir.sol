@@ -163,25 +163,25 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 		// Pillage strength calculated with the 2 second block avg. of Polygon in mind
 		if (currentSupply >= 9500) {
 			curvePrice = 1000000000000000000; // 9500 - 9873: 1.00 ETH
-			pillageStrength = 50000000000000; // 0.00005 ETH - Avg time: 33.33 min
+			pillageStrength = 50000000000000; // 0.00005 ETH - Avg time: 5.55 hour
 		} else if (currentSupply >= 9000) {
 			curvePrice = 640000000000000000; // 9000 - 9500: 0.64 ETH
-			pillageStrength = 40000000000000; // 0.00004 ETH - Avg time: 1.11 hours
+			pillageStrength = 40000000000000; // 0.00004 ETH - Avg time: 4.44 hours
 		} else if (currentSupply >= 7500) {
 			curvePrice = 320000000000000000; // 7500 - 9000: 0.32 ETH
-			pillageStrength = 20000000000000; // 0.00002 ETH - Avg time: 2.22 hours
+			pillageStrength = 20000000000000; // 0.00002 ETH - Avg time: 4.44 hours
 		} else if (currentSupply >= 3500) {
 			curvePrice = 160000000000000000; // 3500 - 7000: 0.16 ETH
 			pillageStrength = 20000000000000; // 0.00002 ETH - Avg time: 2.22 hours
 		} else if (currentSupply >= 1500) {
 			curvePrice = 80000000000000000; // 1500 - 3500: 0.08 ETH
-			pillageStrength = 10000000000000; // 0.00001 ETH - Avg time: 4.44 hours
+			pillageStrength = 10000000000000; // 0.00001 ETH - Avg time: 2.22 hours
 		} else if (currentSupply >= 500) {
 			curvePrice = 40000000000000000; // 500 - 1500: 0.04 ETH
-			pillageStrength = 10000000000000; // 0.00001 ETH - Avg time: 4.44 hours
+			pillageStrength = 10000000000000; // 0.00001 ETH - Avg time: 1.11 hours
 		} else {
 			curvePrice = 20000000000000000; // 0 - 500: 0.02 ETH
-			pillageStrength = 10000000000000; // 0.00001 ETH - Avg time: 5.55 hour
+			pillageStrength = 10000000000000; // 0.00001 ETH - Avg time: 33.33 min
 		}
 
 		if (pillageStarted) {
