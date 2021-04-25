@@ -135,3 +135,63 @@ Across each level of the bonding curve the curve and The Pillage will look like 
 | Min Price     | `0.5 ETH`    |
 | Blocks to Min | `1250`       |
 | Avg. Time     | `4.6 hours`  |
+
+#### Polygon Pillage
+
+The Pillage structure changed after moving the project to Polygon. See the new Pillage prices below:
+
+| Level 1       |               |
+|---------------|---------------|
+| Price         | `0.02`        |
+| Min Price     | `0.01`        |
+| Drop p/Block  | `0.00001`     |
+| Blocks to Min | `1000`        |
+| Avg. Time     | `33.33 min`   |
+
+| Level 2       |               |
+|---------------|---------------|
+| Price         | `0.04`        |
+| Min Price     | `0.02`        |
+| Drop p/Block  | `0.00001`     |
+| Blocks to Min | `2000`        |
+| Avg. Time     | `1.11 hours`  |
+
+| Level 3       |               |
+|---------------|---------------|
+| Price         | `0.08`        |
+| Min Price     | `0.04`        |
+| Drop p/Block  | `0.00001`     |
+| Blocks to Min | `4000`        |
+| Avg. Time     | `2.22 hours`  |
+
+| Level 3       |               |
+|---------------|---------------|
+| Price         | `0.16`        |
+| Min Price     | `0.08`        |
+| Drop p/Block  | `0.00002`     |
+| Blocks to Min | `4000`        |
+| Avg. Time     | `2.22 hours`  |
+
+| Level 5       |               |
+|---------------|---------------|
+| Price         | `0.32`        |
+| Min Price     | `0.16`        |
+| Drop p/Block  | `0.00002`     |
+| Blocks to Min | `8000`        |
+| Avg. Time     | `4.44 hours`  |
+
+| Level 6       |               |
+|---------------|---------------|
+| Price         | `0.64`        |
+| Min Price     | `0.32`        |
+| Drop p/Block  | `0.00004`     |
+| Blocks to Min | `8000`        |
+| Avg. Time     | `4.44 hours`  |
+
+| Level 7       |               |
+|---------------|---------------|
+| Price         | `1.00`        |
+| Min Price     | `0.5`         |
+| Drop p/Block  | `0.00005`     |
+| Blocks to Min | `10,000`      |
+| Avg. Time     | `5.55 hours`  |
