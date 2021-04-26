@@ -3,7 +3,8 @@
 	"version": "0.0.1",
 	"scripts": {
 		"flatten": "./node_modules/.bin/poa-solidity-flattener ./contracts/Nornir.sol",
-		"mumbai": "npx hardhat run --network mumbai scripts/deploy-nornir-contract.js"
+		"mumbai": "./node_modules/.bin/hardhat run --network mumbai scripts/deploy-nornir-contract.js",
+		"compile": "node -r ./dotenv.js ./node_modules/.bin/hardhat compile"
 	},
 	"author": "",
 	"license": "ISC",
@@ -12,7 +13,7 @@
 		"@nomiclabs/hardhat-etherscan": "^2.1.1",
 		"@openzeppelin/contracts": "^4.0.0",
 		"@poanet/solidity-flattener": "^3.0.6",
-		"dotenv": "^8.2.0",
+		"dotenv-safe": "^8.2.0",
 		"hardhat": "^2.1.1"
 	},
 	"devDependencies": {
