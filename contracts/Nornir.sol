@@ -24,7 +24,7 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 	string public constant BASE_URI = 'http://localhost:8080/api/viking/';
 
 	// Interfaces
-	IWeth internal WETHContract;
+	IWeth public WETHContract;
 
 	// Variables
 	// A figure set for blocks to pass before the price reduction begins
@@ -39,6 +39,7 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 
 	// Structs
 	struct Viking {
+		string name; // Name of the Viking - Default of "Viking #ID"
 		uint256 weapon; // 0 - 99, indicating the weapon type
 		uint256 attack; // 0 - 99, indicating attack stat + weapon condition
 		uint256 shield; // 0 - 99, indicating the shieldtype
@@ -85,7 +86,6 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 		// Store how much it'll cost to mint
 		uint256 mintPrice = calculatePrice(vikingsToMint);
 
-
 		// Make sure enough WETH has been approved to send
 		require(WETHContract.allowance(msg.sender, address(this)) >= mintPrice, 'Not enough WETH approved');
 
@@ -127,6 +127,7 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 		// Set Viking stats
 		vikings.push(
 			Viking(
+				string(abi.encodePacked("Viking #", newId.toString())),
 				// Weapon & Attack
 				(randomNumber % 100),
 				(randomNumber % 10000) / 100,
