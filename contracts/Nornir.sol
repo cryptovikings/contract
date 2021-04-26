@@ -24,7 +24,7 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 	string public constant BASE_URI = 'http://localhost:8080/api/viking/';
 
 	// Interfaces
-	IWeth WETHContract;
+	IWeth internal WETHContract;
 
 	// Variables
 	// A figure set for blocks to pass before the price reduction begins
@@ -78,18 +78,22 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 		// Make sure sale isn't over
 		require(totalSupply() < MAX_VIKINGS, 'Sale ended');
 		// Make sure user is trying to mint within minting limits
-		require(vikingsToMint > 0 && vikingsToMint <= MAX_BULK, 'You can only mint between 1 to 50 Vikings per TX');
+		require(vikingsToMint > 0 && vikingsToMint <= MAX_BULK, 'Can only mint 1-50 Vikings');
 		// Make sure users request to mint isn't over the maxiumum amout of Vikings
 		require((totalSupply() + vikingsToMint) <= MAX_VIKINGS, 'Over MAX_VIKINGS limit');
 
 		// Store how much it'll cost to mint
 		uint256 mintPrice = calculatePrice(vikingsToMint);
 
+
 		// Make sure enough WETH has been approved to send
 		require(WETHContract.allowance(msg.sender, address(this)) >= mintPrice, 'Not enough WETH approved');
 
 		// Transfer mintPrice from users wallet to contract
 		require(WETHContract.transferFrom(msg.sender, address(this), mintPrice) == true, 'Not enough WETH for TX');
+
+		// Update the last brought block number
+		lastBroughtBlock = block.number;
 
 		WETHContract.transfer(address(TREASURY), mintPrice);
 
@@ -105,9 +109,6 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 			// Request Randomness
 			requestRandomness(keyHash, fee, block.timestamp);
 		}
-
-		// Update the last brought block number
-		lastBroughtBlock = block.number;
 	}
 
 	function fulfillRandomness(bytes32 requestId, uint256 randomNumber) internal override {
