@@ -56,7 +56,8 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 	Viking[] public vikings;
 
 	// Mappings
-	mapping(bytes32 => uint256) generatedRandom;
+	mapping(bytes32 => uint256) internal generatedRandom;
+	mapping(uint256 => uint256) public randomNumberToVikingId;
 
 	constructor(address _VRFCoordinator, address _LinkToken, bytes32 _keyHash)
 		VRFConsumerBase(_VRFCoordinator, _LinkToken)
@@ -119,6 +120,8 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 	function generateViking(bytes32 requestId) public {
 		uint256 randomNumber = generatedRandom[requestId];
 		uint256 newId = vikings.length;
+
+		randomNumberToVikingId[newId] = randomNumber;
 
 		// Set Viking stats
 		vikings.push(
