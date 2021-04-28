@@ -16,6 +16,7 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 	// Events
 	event VikingReady(uint256 vikingId);
 	event VikingGenerated(uint256 id, Viking vikingData);
+	event NameChange(string name, uint256 id);
 
 	// Constants
 	uint16 public constant MAX_VIKINGS = 9873;
@@ -58,6 +59,7 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 	mapping(uint256 => Viking) public vikings;
 	mapping(uint256 => uint256) public vikingIdToRandomNumber;
 	mapping(bytes32 => uint256) internal requestIdToVikingId;
+	mapping(bytes32 => bool) internal vikingNames;
 
 	constructor(address _VRFCoordinator, address _LinkToken, bytes32 _keyHash)
 		VRFConsumerBase(_VRFCoordinator, _LinkToken)
@@ -148,6 +150,8 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 
 		vikingCount++;
 
+		vikingNames[keccak256(abi.encodePacked("Viking #", vikingId.toString()))] = true;
+
 		emit VikingGenerated(vikingId, vikings[vikingId]);
 	}
 
@@ -219,6 +223,24 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 		else {
 			return curvePrice * qty;
 		}
+	}
+
+	// TODO: Maybe add a name limiting function
+	function updateName(string memory newName, uint256 vikingId) public {
+		// Check to see the sender owns the Viking
+		require(msg.sender == ownerOf(vikingId), "Must own the Viking to change name");
+		// Check the vikingNames mapping for the new name
+		require(!vikingNames[keccak256(abi.encodePacked(newName))], "Name in use");
+
+		// Delete the old Viking name mapping, making the name available
+		delete vikingNames[keccak256(abi.encodePacked(vikings[vikingId].name))];
+
+		// Update the Vikings name
+		vikings[vikingId].name = newName;
+		// Update the mapping to make the new name unavailable
+		vikingNames[keccak256(abi.encodePacked(newName))] = true;
+
+		emit NameChange(newName, vikingId);
 	}
 
 	// Overriding Functions
