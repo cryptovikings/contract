@@ -14,7 +14,7 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 	using Strings for uint256;
 
 	// Events
-	event VikingReady(bytes32 requestId);
+	event VikingReady(uint256 vikingId);
 	event VikingGenerated(uint256 id, Viking vikingData);
 
 	// Constants
@@ -27,6 +27,7 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 	IWeth public WETHContract;
 
 	// Variables
+	uint256 public vikingCount = 0;
 	// A figure set for blocks to pass before the price reduction begins
 	// Polygon avg. block time = 2 second
 	// 2 hours / 2 seconds = 3600
@@ -54,11 +55,9 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 	}
 
 	// Mappings
-	Viking[] public vikings;
-
-	// Mappings
-	mapping(bytes32 => uint256) internal generatedRandom;
-	mapping(uint256 => uint256) public randomNumberToVikingId;
+	mapping(uint256 => Viking) public vikings;
+	mapping(uint256 => uint256) public vikingIdToRandomNumber;
+	mapping(bytes32 => uint256) internal requestIdToVikingId;
 
 	constructor(address _VRFCoordinator, address _LinkToken, bytes32 _keyHash)
 		VRFConsumerBase(_VRFCoordinator, _LinkToken)
@@ -95,60 +94,61 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 		// Update the last brought block number
 		lastBroughtBlock = block.number;
 
-		WETHContract.transfer(address(TREASURY), mintPrice);
-
 		for (uint i = 0; i < vikingsToMint; i++) {
-			uint256 newId = totalSupply();
+			uint256 id = totalSupply();
 
 			// Mint the Viking
-			_safeMint(msg.sender, newId);
+			_safeMint(msg.sender, id);
 
 			// Set the Viking/Token URI
-			_setTokenURI(newId, newId.toString());
+			_setTokenURI(id, id.toString());
 
 			// Request Randomness
-			requestRandomness(keyHash, fee, block.timestamp);
+			requestIdToVikingId[
+				requestRandomness(keyHash, fee, block.timestamp)
+			] = id;
 		}
+
+		WETHContract.transfer(address(TREASURY), mintPrice); // TODO: Add withdraw
 	}
 
 	function fulfillRandomness(bytes32 requestId, uint256 randomNumber) internal override {
-		generatedRandom[requestId] = randomNumber;
+		uint256 vikingId = requestIdToVikingId[requestId];
 
-		emit VikingReady(requestId);
+		vikingIdToRandomNumber[vikingId] = randomNumber;
+
+		emit VikingReady(vikingId);
 	}
 
 	// TODO: Make an onlyOwner function
-	function generateViking(bytes32 requestId) public {
-		uint256 randomNumber = generatedRandom[requestId];
-		uint256 newId = vikings.length;
-
-		randomNumberToVikingId[newId] = randomNumber;
+	function generateViking(uint256 vikingId) public {
+		uint256 randomNumber = vikingIdToRandomNumber[vikingId];
 
 		// Set Viking stats
-		vikings.push(
-			Viking(
-				string(abi.encodePacked("Viking #", newId.toString())),
-				// Weapon & Attack
-				(randomNumber % 100),
-				(randomNumber % 10000) / 100,
-				// Sheild & Defence
-				(randomNumber % 10**6) / 10**4,
-				(randomNumber % 10**8) / 10**6,
-				// Boots & Speed
-				(randomNumber % 10**10) / 10**8,
-				(randomNumber % 10**12) / 10**10,
-				// Helmet and Intelligence
-				(randomNumber % 10**14) / 10**12,
-				(randomNumber % 10**16) / 10**14,
-				// Bottoms & Stamina
-				(randomNumber % 10**18) / 10**16,
-				(randomNumber % 10**20) / 10**18,
-				// Appearance
-				(randomNumber % 10**28) / 10**20
-			)
+		vikings[vikingId] = Viking(
+			// Weapon & Attack
+			string(abi.encodePacked("Viking #", vikingId.toString())),
+			(randomNumber % 100),
+			(randomNumber % 10000) / 100,
+			// Sheild & Defence
+			(randomNumber % 10**6) / 10**4,
+			(randomNumber % 10**8) / 10**6,
+			// Boots & Speed
+			(randomNumber % 10**10) / 10**8,
+			(randomNumber % 10**12) / 10**10,
+			// Helmet and Intelligence
+			(randomNumber % 10**14) / 10**12,
+			(randomNumber % 10**16) / 10**14,
+			// Bottoms & Stamina
+			(randomNumber % 10**18) / 10**16,
+			(randomNumber % 10**20) / 10**18,
+			// Appearance
+			(randomNumber % 10**28) / 10**20
 		);
 
-		emit VikingGenerated(newId, vikings[newId]);
+		vikingCount++;
+
+		emit VikingGenerated(vikingId, vikings[vikingId]);
 	}
 
 	function getPricing() public view returns (bool pillageStarted, uint256 curvePrice, uint256 pillagePrice) {
