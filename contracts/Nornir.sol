@@ -41,7 +41,7 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 
 	// Structs
 	struct Viking {
-		string name; // Name of the Viking - Default of "Viking #ID"
+		string name; // Name of the Viking - Default of 'Viking #ID'
 		uint256 weapon; // 0 - 99, indicating the weapon type
 		uint256 attack; // 0 - 99, indicating attack stat + weapon condition
 		uint256 shield; // 0 - 99, indicating the shieldtype
@@ -129,7 +129,7 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 		// Set Viking stats
 		vikings[vikingId] = Viking(
 			// Weapon & Attack
-			string(abi.encodePacked("Viking #", vikingId.toString())),
+			string(abi.encodePacked('Viking #', vikingId.toString())),
 			(randomNumber % 100),
 			(randomNumber % 10000) / 100,
 			// Sheild & Defence
@@ -150,7 +150,7 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 
 		vikingCount++;
 
-		vikingNames[keccak256(abi.encodePacked("Viking #", vikingId.toString()))] = true;
+		vikingNames[keccak256(abi.encodePacked('Viking #', vikingId.toString()))] = true;
 
 		emit VikingGenerated(vikingId, vikings[vikingId]);
 	}
@@ -228,9 +228,9 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 	// TODO: Maybe add a name limiting function
 	function updateName(string memory newName, uint256 vikingId) public {
 		// Check to see the sender owns the Viking
-		require(msg.sender == ownerOf(vikingId), "Must own the Viking to change name");
+		require(msg.sender == ownerOf(vikingId), 'Only owner can change Viking name');
 		// Check the vikingNames mapping for the new name
-		require(!vikingNames[keccak256(abi.encodePacked(newName))], "Name in use");
+		require(!vikingNames[keccak256(abi.encodePacked(newName))], 'Name in use');
 
 		// Delete the old Viking name mapping, making the name available
 		delete vikingNames[keccak256(abi.encodePacked(vikings[vikingId].name))];
