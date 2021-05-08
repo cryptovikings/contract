@@ -228,6 +228,19 @@
 		"type": "event"
 	},
 	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "uint256[]",
+				"name": "",
+				"type": "uint256[]"
+			}
+		],
+		"name": "VikingsMinted",
+		"type": "event"
+	},
+	{
 		"inputs": [],
 		"name": "BASE_URI",
 		"outputs": [
