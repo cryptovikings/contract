@@ -14,6 +14,7 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 	using Strings for uint256;
 
 	// Events
+	event VikingsMinted(uint256[]);
 	event VikingReady(uint256 vikingId);
 	event VikingGenerated(uint256 id, Viking vikingData);
 	event NameChange(string name, uint256 id);
@@ -96,6 +97,9 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 		// Update the last brought block number
 		lastBroughtBlock = block.number;
 
+		// An array of Viking IDs to pass to the VikingsMinted event
+		uint256[] memory mintedIds = new uint256[](vikingsToMint);
+
 		for (uint i = 0; i < vikingsToMint; i++) {
 			uint256 id = totalSupply();
 
@@ -107,9 +111,13 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 
 			// Request Randomness
 			requestIdToVikingId[
-				requestRandomness(keyHash, fee, block.timestamp)
+				requestRandomness(keyHash, fee, uint256(keccak256(abi.encode(vikingsToMint, block.timestamp))))
 			] = id;
+
+			mintedIds[i] = id;
 		}
+
+		emit VikingsMinted(mintedIds);
 
 		WETHContract.transfer(address(TREASURY), mintPrice); // TODO: Add withdraw
 	}
