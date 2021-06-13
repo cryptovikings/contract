@@ -130,8 +130,7 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 		emit VikingReady(vikingId);
 	}
 
-	// TODO: Make an onlyOwner function
-	function generateViking(uint256 vikingId) public {
+	function generateViking(uint256 vikingId) public onlyOwner {
 		uint256 randomNumber = vikingIdToRandomNumber[vikingId];
 
 		// Set Viking stats
