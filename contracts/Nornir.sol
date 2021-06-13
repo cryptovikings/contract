@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 import '@openzeppelin/contracts/token/ERC721/ERC721.sol';
 import '@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol';
 import '@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol';
+import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import '@openzeppelin/contracts/access/Ownable.sol';
 import '@openzeppelin/contracts/utils/Strings.sol';
 import '@chainlink/contracts/src/v0.8/dev/VRFConsumerBase.sol';
@@ -248,6 +249,14 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 		vikingNames[keccak256(abi.encodePacked(newName))] = true;
 
 		emit NameChange(newName, vikingId);
+	}
+
+	function withdraw() public payable onlyOwner {
+		require(payable(TREASURY).send(address(this).balance));
+	}
+
+	function withdrawErc20(IERC20 token) public onlyOwner {
+		token.transfer(TREASURY, token.balanceOf(address(this)));
 	}
 
 	// Overriding Functions
