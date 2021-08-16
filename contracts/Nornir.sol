@@ -17,7 +17,7 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 	event VikingsMinted(uint256[]);
 	event VikingReady(uint256 vikingId);
 	event VikingGenerated(uint256 id, Viking vikingData);
-	event NameChange(string name, uint256 id);
+	event NameChange(uint256 id, string name);
 
 	// Constants
 	uint256 public constant LAUNCH_BLOCK = 18053667;
@@ -213,10 +213,39 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 		return price * qty;
 	}
 
-	// TODO: Maybe add a name limiting function
-	function updateName(string memory newName, uint256 vikingId) public {
+	function validateName(string memory str) public pure returns (bool) {
+		bytes memory b = bytes(str);
+		if (b.length < 1) return false;
+		if (b.length > 25) return false; // Cannot be longer than 25 characters
+		if (b[0] == 0x20) return false; // Leading space
+		if (b[b.length - 1] == 0x20) return false; // Trailing space
+
+		bytes1 lastChar = b[0];
+
+		for (uint i; i<b.length; i++){
+			bytes1 char = b[i];
+
+			if (char == 0x20 && lastChar == 0x20) return false; // Cannot contain continous spaces
+
+			if (
+				!(char >= 0x30 && char <= 0x39) && //9-0
+				!(char >= 0x41 && char <= 0x5A) && //A-Z
+				!(char >= 0x61 && char <= 0x7A) && //a-z
+				!(char == 0x20) //space
+			)
+				return false;
+
+			lastChar = char;
+		}
+
+		return true;
+	}
+
+	function changeName(uint256 vikingId, string memory newName) public {
 		// Check to see the sender owns the Viking
 		require(msg.sender == ownerOf(vikingId), 'Only owner can change Viking name');
+		// Make sure the name passes validation
+		require(validateName(newName) == true, 'Not a valid new name');
 		// Check the vikingNames mapping for the new name
 		require(!vikingNames[keccak256(abi.encodePacked(newName))], 'Name in use');
 
@@ -228,7 +257,7 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 		// Update the mapping to make the new name unavailable
 		vikingNames[keccak256(abi.encodePacked(newName))] = true;
 
-		emit NameChange(newName, vikingId);
+		emit NameChange(vikingId, newName);
 	}
 
 	// Withdraw Methods
