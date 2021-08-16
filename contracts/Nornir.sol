@@ -25,13 +25,14 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 	uint16 public constant MAX_BULK = 50;
 	address public constant TREASURY = 0xB2b8AA72D9CF3517f7644245Cf7bdc301E9F1c56;
 	string public constant BASE_URI = 'http://localhost:8080/api/viking/';
-	uint256 public constant LAUNCH_BLOCK = 18053667;
+	uint256 public constant MAX_OWNER_MINTS = 40;
 
 	// Interfaces
 	IWeth public WETHContract;
 
 	// Variables
 	uint256 public vikingCount = 0;
+	uint256 public ownerMintedCount = 0;
 	uint256 internal fee;
 	bytes32 internal keyHash;
 	address internal vrfCoordinator;
@@ -115,6 +116,45 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 		emit VikingsMinted(mintedIds);
 
 		WETHContract.transfer(address(TREASURY), mintPrice);
+	}
+
+	function ownerMintViking(uint256 vikingsToMint) public onlyOwner {
+		// Make sure the launch block has passed
+		require(block.timestamp >= LAUNCH_BLOCK, 'Vikings not yet released');
+		// Make sure sale isn't over
+		require(totalSupply() < MAX_VIKINGS, 'Sale complete. Vikings sold out');
+		// Make owner mints aren't exceeded
+		require(ownerMintedCount < MAX_OWNER_MINTS, 'Maximum allowance of owner mints reached');
+		// Make sure user is trying to mint within minting limits
+		require(vikingsToMint > 0 && vikingsToMint <= MAX_BULK, 'Can only mint 1-50 Vikings');
+		// Make sure users request to mint isn't over the maxiumum amout of Vikings
+		require((totalSupply() + vikingsToMint) <= MAX_VIKINGS, 'Mint exceeds MAX_VIKINGS limit');
+		// Make sure owner request to mint isn't over the maxiumum amout of owner mints
+		require((MAX_OWNER_MINTS + vikingsToMint) <= MAX_VIKINGS, 'Mint exceeds MAX_OWNER_MINTS limit');
+
+		// An array of Viking IDs to pass to the VikingsMinted event
+		uint256[] memory mintedIds = new uint256[](vikingsToMint);
+
+		for (uint i = 0; i < vikingsToMint; i++) {
+			uint256 id = totalSupply();
+
+			// Mint the Viking
+			_safeMint(msg.sender, id);
+
+			// Set the Viking/Token URI
+			_setTokenURI(id, id.toString());
+
+			// Request Randomness
+			requestIdToVikingId[
+				requestRandomness(keyHash, fee, uint256(keccak256(abi.encode(vikingsToMint, block.timestamp))))
+			] = id;
+
+			mintedIds[i] = id;
+
+			ownerMintedCount++;
+		}
+
+		emit VikingsMinted(mintedIds);
 	}
 
 	function fulfillRandomness(bytes32 requestId, uint256 randomNumber) internal override {
