@@ -113,7 +113,7 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 
 		emit VikingsMinted(mintedIds);
 
-		WETHContract.transfer(address(TREASURY), mintPrice); // TODO: Add withdraw
+		WETHContract.transfer(address(TREASURY), mintPrice);
 	}
 
 	function fulfillRandomness(bytes32 requestId, uint256 randomNumber) internal override {
