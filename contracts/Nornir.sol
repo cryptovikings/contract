@@ -76,11 +76,11 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 		// Make sure the launch block has passed
 		require(block.timestamp >= LAUNCH_BLOCK, 'Vikings not yet released');
 		// Make sure sale isn't over
-		require(totalSupply() < MAX_VIKINGS, 'Sale ended');
+		require(totalSupply() < MAX_VIKINGS, 'Sale complete. Vikings sold out');
 		// Make sure user is trying to mint within minting limits
 		require(vikingsToMint > 0 && vikingsToMint <= MAX_BULK, 'Can only mint 1-50 Vikings');
 		// Make sure users request to mint isn't over the maxiumum amout of Vikings
-		require((totalSupply() + vikingsToMint) <= MAX_VIKINGS, 'Over MAX_VIKINGS limit');
+		require((totalSupply() + vikingsToMint) <= MAX_VIKINGS, 'Mint exceeds MAX_VIKINGS limit');
 
 		// Store how much it'll cost to mint
 		uint256 mintPrice = calculatePrice(vikingsToMint);
