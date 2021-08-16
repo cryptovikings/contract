@@ -30,12 +30,6 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 
 	// Variables
 	uint256 public vikingCount = 0;
-	// A figure set for blocks to pass before the price reduction begins
-	// Polygon avg. block time = 2 second
-	// 2 hours / 2 seconds = 3600
-	uint16 internal pillageBuffer = 3600;
-
-	uint256 public lastBroughtBlock = 12796958; // Return to internal for deployment
 	uint256 internal fee;
 	bytes32 internal keyHash;
 	address internal vrfCoordinator;
@@ -93,9 +87,6 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 
 		// Transfer mintPrice from users wallet to contract
 		require(WETHContract.transferFrom(msg.sender, address(this), mintPrice) == true, 'Not enough WETH for TX');
-
-		// Update the last brought block number
-		lastBroughtBlock = block.number;
 
 		// An array of Viking IDs to pass to the VikingsMinted event
 		uint256[] memory mintedIds = new uint256[](vikingsToMint);
@@ -162,74 +153,20 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 		emit VikingGenerated(vikingId, vikings[vikingId]);
 	}
 
-	function getPricing() public view returns (bool pillageStarted, uint256 curvePrice, uint256 pillagePrice) {
-		// Get the current amount of minted Vikings
-		uint256 currentSupply = totalSupply();
-		require(currentSupply < MAX_VIKINGS, 'Sale ended');
+	function calculatePrice(uint256 qty) public pure returns (uint256) {
+		uint256 price;
 
-		// Will store the base amount of the price reduction per curve level
-		uint256 pillageStrength;
-
-		// Get the amount of blocks from the last brought Viking and this block
-		uint256 blockGap = block.number - lastBroughtBlock;
-		// Set whether or not the pillage has started
-		pillageStarted = blockGap > pillageBuffer;
-
-		// Calculate the curve price and pillageStrength from the amount of Vikings sold
-		// Pillage strength calculated with the 2 second block avg. of Polygon in mind
-		if (currentSupply >= 9500) {
-			curvePrice = 1000000000000000000; // 9500 - 9873: 1.00 ETH
-			pillageStrength = 50000000000000; // 0.00005 ETH - Avg time: 5.55 hour
-		} else if (currentSupply >= 9000) {
-			curvePrice = 640000000000000000; // 9000 - 9500: 0.64 ETH
-			pillageStrength = 40000000000000; // 0.00004 ETH - Avg time: 4.44 hours
-		} else if (currentSupply >= 7500) {
-			curvePrice = 320000000000000000; // 7500 - 9000: 0.32 ETH
-			pillageStrength = 20000000000000; // 0.00002 ETH - Avg time: 4.44 hours
-		} else if (currentSupply >= 3500) {
-			curvePrice = 160000000000000000; // 3500 - 7000: 0.16 ETH
-			pillageStrength = 20000000000000; // 0.00002 ETH - Avg time: 2.22 hours
-		} else if (currentSupply >= 1500) {
-			curvePrice = 80000000000000000; // 1500 - 3500: 0.08 ETH
-			pillageStrength = 10000000000000; // 0.00001 ETH - Avg time: 2.22 hours
-		} else if (currentSupply >= 500) {
-			curvePrice = 40000000000000000; // 500 - 1500: 0.04 ETH
-			pillageStrength = 10000000000000; // 0.00001 ETH - Avg time: 1.11 hours
-		} else {
-			curvePrice = 20000000000000000; // 0 - 500: 0.02 ETH
-			pillageStrength = 10000000000000; // 0.00001 ETH - Avg time: 33.33 min
+		if (qty >= 25) {
+			price = 73000000000000000; // 0.073 ETH
 		}
-
-		if (pillageStarted) {
-			// Set the max pillage rate to half the price of the current curve
-			uint256 maxPillage = curvePrice / 2;
-			// Set the pillage force to start from the difference of the pillage start and block gap. Otherwise we'll drop price rapidly
-			uint256 blockCount = blockGap - pillageBuffer;
-
-			// Set the force of the pillage. Base pillage strength plus the amount of blocks pass since pillage start
-			uint256 pillageForce = pillageStrength * blockCount;
-
-			// If pillage force is above the max reduction set to max reduction
-			if (pillageForce >= maxPillage) {
-				pillagePrice = maxPillage;
-			}
-			else {
-				pillagePrice = curvePrice - pillageForce;
-			}
-		}
-
-		return (pillageStarted, curvePrice, pillagePrice);
-	}
-
-	function calculatePrice(uint256 qty) public view returns (uint256) {
-		(bool pillageStarted, uint256 curvePrice, uint256 pillagePrice) = getPricing();
-
-		if (pillageStarted) {
-			return curvePrice * (qty - 1) + pillagePrice;
+		else if (qty >= 10) {
+			price = 87300000000000000; // 0.0873 ETH
 		}
 		else {
-			return curvePrice * qty;
+			price = 98730000000000000; // 0.09873 ETH
 		}
+
+		return price * qty;
 	}
 
 	// TODO: Maybe add a name limiting function
