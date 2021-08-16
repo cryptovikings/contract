@@ -265,10 +265,7 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 		return BASE_URI;
 	}
 
-	function _beforeTokenTransfer(address from, address to, uint256 tokenId)
-		internal
-		override(ERC721, ERC721Enumerable)
-	{
+	function _beforeTokenTransfer(address from, address to, uint256 tokenId) internal override(ERC721, ERC721Enumerable) {
 		super._beforeTokenTransfer(from, to, tokenId);
 	}
 
@@ -276,21 +273,11 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 		super._burn(tokenId);
 	}
 
-	function tokenURI(uint256 tokenId)
-		public
-		view
-		override(ERC721, ERC721URIStorage)
-		returns (string memory)
-	{
+	function tokenURI(uint256 tokenId) public view override(ERC721, ERC721URIStorage) returns (string memory) {
 		return super.tokenURI(tokenId);
 	}
 
-	function supportsInterface(bytes4 interfaceId)
-		public
-		view
-		override(ERC721, ERC721Enumerable)
-		returns (bool)
-	{
+	function supportsInterface(bytes4 interfaceId) public view override(ERC721, ERC721Enumerable) returns (bool) {
 		return super.supportsInterface(interfaceId);
 	}
 }
