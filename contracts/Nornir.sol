@@ -24,6 +24,7 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 	uint16 public constant MAX_BULK = 50;
 	address public constant TREASURY = 0xB2b8AA72D9CF3517f7644245Cf7bdc301E9F1c56;
 	string public constant BASE_URI = 'http://localhost:8080/api/viking/';
+	uint256 public constant LAUNCH_BLOCK = 18053667;
 
 	// Interfaces
 	IWeth public WETHContract;
@@ -72,6 +73,8 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 	}
 
 	function mintViking(uint256 vikingsToMint) public {
+		// Make sure the launch block has passed
+		require(block.timestamp >= LAUNCH_BLOCK, 'Vikings not yet released');
 		// Make sure sale isn't over
 		require(totalSupply() < MAX_VIKINGS, 'Sale ended');
 		// Make sure user is trying to mint within minting limits
