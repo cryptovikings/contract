@@ -33,10 +33,10 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 
 	// Variables
 	uint256 public vikingCount = 0;
+	uint256 public ownerMintedCount = 0;
 	uint256 internal fee;
 	bytes32 internal keyHash;
 	address internal vrfCoordinator;
-	uint256 public ownerMintedCount = 0;
 
 	// Structs
 	struct Viking {
