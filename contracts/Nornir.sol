@@ -4,10 +4,11 @@ pragma solidity ^0.8.0;
 import '@openzeppelin/contracts/token/ERC721/ERC721.sol';
 import '@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol';
 import '@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol';
+import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import '@openzeppelin/contracts/access/Ownable.sol';
 import '@openzeppelin/contracts/utils/Strings.sol';
 import '@chainlink/contracts/src/v0.8/dev/VRFConsumerBase.sol';
-import 'interfaces/IWeth.sol';
+import '../interfaces/IWeth.sol';
 
 contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsumerBase {
 	// Library Usage
@@ -32,10 +33,10 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 
 	// Variables
 	uint256 public vikingCount = 0;
-	uint256 public ownerMintedCount = 0;
 	uint256 internal fee;
 	bytes32 internal keyHash;
 	address internal vrfCoordinator;
+	uint256 public ownerMintedCount = 0;
 
 	// Structs
 	struct Viking {
