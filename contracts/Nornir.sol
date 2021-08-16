@@ -20,6 +20,7 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 	event NameChange(string name, uint256 id);
 
 	// Constants
+	uint256 public constant LAUNCH_BLOCK = 18053667;
 	uint16 public constant MAX_VIKINGS = 9873;
 	uint16 public constant MAX_BULK = 50;
 	address public constant TREASURY = 0xB2b8AA72D9CF3517f7644245Cf7bdc301E9F1c56;
