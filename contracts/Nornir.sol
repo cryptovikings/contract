@@ -250,6 +250,16 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 		emit NameChange(newName, vikingId);
 	}
 
+	// Withdraw Methods
+	function withdraw() public payable onlyOwner {
+		uint balance = address(this).balance;
+		payable(TREASURY).transfer(balance);
+	}
+
+	function withdrawErc20(IERC20 token) public onlyOwner {
+		token.transfer(TREASURY, token.balanceOf(address(this)));
+	}
+
 	// Overriding Functions
 	function _baseURI() internal pure override returns (string memory) {
 		return BASE_URI;
