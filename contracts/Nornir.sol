@@ -131,7 +131,7 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 		// Make sure users request to mint isn't over the maxiumum amout of Vikings
 		require((totalSupply() + vikingsToMint) <= MAX_VIKINGS, 'Mint exceeds MAX_VIKINGS limit');
 		// Make sure owner request to mint isn't over the maxiumum amout of owner mints
-		require((MAX_OWNER_MINTS + vikingsToMint) <= MAX_VIKINGS, 'Mint exceeds MAX_OWNER_MINTS limit');
+		require((ownerMintedCount + vikingsToMint) <= MAX_OWNER_MINTS, 'Mint exceeds MAX_OWNER_MINTS limit');
 
 		// An array of Viking IDs to pass to the VikingsMinted event
 		uint256[] memory mintedIds = new uint256[](vikingsToMint);
