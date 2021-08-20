@@ -18,6 +18,7 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 	event VikingsMinted(uint256[]);
 	event VikingReady(uint256 vikingId);
 	event VikingGenerated(uint256 id, Viking vikingData);
+	event VikingComplete(uint256 id);
 	event NameChange(uint256 id, string name);
 
 	// Constants
@@ -167,9 +168,9 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 	}
 
 	function generateViking(uint256 vikingId) public onlyOwner {
-		uint256 randomNumber = vikingIdToRandomNumber[vikingId];
-
 		require(vikings[vikingId].appearance == 0, 'Viking already generated');
+
+		uint256 randomNumber = vikingIdToRandomNumber[vikingId];
 
 		// Set Viking stats
 		vikings[vikingId] = Viking(
@@ -198,6 +199,10 @@ contract Nornir is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, VRFConsu
 		vikingNames[keccak256(abi.encodePacked('Viking #', vikingId.toString()))] = true;
 
 		emit VikingGenerated(vikingId, vikings[vikingId]);
+	}
+
+	function completeViking(uint256 vikingId) public onlyOwner {
+		emit VikingComplete(vikingId);
 	}
 
 	function calculatePrice(uint256 qty) public pure returns (uint256) {
