@@ -135,13 +135,7 @@ contract Nornir is
 
             // Request Randomness
             requestIdToVikingId[
-                requestRandomness(
-                    keyHash,
-                    fee,
-                    uint256(
-                        keccak256(abi.encode(vikingsToMint, block.timestamp))
-                    )
-                )
+                requestRandomness(keyHash, fee)
             ] = id;
 
             mintedIds[i] = id;
@@ -194,13 +188,7 @@ contract Nornir is
 
             // Request Randomness
             requestIdToVikingId[
-                requestRandomness(
-                    keyHash,
-                    fee,
-                    uint256(
-                        keccak256(abi.encode(vikingsToMint, block.timestamp))
-                    )
-                )
+                requestRandomness(keyHash, fee)
             ] = id;
 
             mintedIds[i] = id;
