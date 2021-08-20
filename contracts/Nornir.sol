@@ -40,9 +40,9 @@ contract Nornir is
     IWeth public WETHContract;
 
     // Variables
+    bool public mintingPaused = false;
     uint256 public vikingCount = 0;
     uint256 public ownerMintedCount = 0;
-    bool public mintingPaused = false;
     uint256 internal fee;
     bytes32 internal keyHash;
     address internal vrfCoordinator;
