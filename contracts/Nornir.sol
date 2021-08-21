@@ -208,8 +208,9 @@ contract Nornir is
 
 		// Set Viking stats
 		vikings[vikingId] = Viking(
-			// Weapon & Attack
+			// Name
 			string(abi.encodePacked('Viking #', vikingId.toString())),
+			// Weapon & Attack
 			(randomNumber % 100),
 			(randomNumber % 10000) / 100,
 			// Sheild & Defence
