@@ -74,9 +74,7 @@ contract Nornir is
 		bytes32 _keyHash
 	) VRFConsumerBase(_VRFCoordinator, _LinkToken) ERC721('Viking', 'VKNG') {
 		// Set wETH data
-		WETHContract = IWeth(
-			address(0xA6FA4fB5f76172d178d61B04b0ecd319C5d1C0aa)
-		);
+		WETHContract = IWeth(address(0xA6FA4fB5f76172d178d61B04b0ecd319C5d1C0aa));
 
 		// Set Chainlink data
 		vrfCoordinator = _VRFCoordinator;
@@ -86,38 +84,46 @@ contract Nornir is
 		fee = 0.1 * 10**15;
 	}
 
-	function mintViking(uint256 vikingsToMint) public {
+	// Minting
+	function mintChecks(uint256 vikingsToMint, bool ownerMints) internal view {
 		// Make sure the launch block has passed
 		require(block.timestamp >= LAUNCH_BLOCK, 'Vikings not yet released');
-		// make sure minting is not paused
+		// Make sure minting is not paused
 		require(!mintingPaused, 'Minting is paused');
 		// Make sure sale isn't over
 		require(totalSupply() < MAX_VIKINGS, 'Sale complete. Vikings sold out');
 		// Make sure user is trying to mint within minting limits
-		require(
-			vikingsToMint > 0 && vikingsToMint <= MAX_BULK,
-			'Can only mint 1-50 Vikings'
-		);
+		require(vikingsToMint > 0 && vikingsToMint <= MAX_BULK, 'Can only mint 1-50 Vikings');
 		// Make sure users request to mint isn't over the maxiumum amout of Vikings
-		require(
-			(totalSupply() + vikingsToMint) <= MAX_VIKINGS,
-			'Mint exceeds MAX_VIKINGS limit'
-		);
+		require((totalSupply() + vikingsToMint) <= MAX_VIKINGS, 'Mint exceeds MAX_VIKINGS limit');
+
+		if (ownerMints) {
+			// Make owner mints aren't exceeded
+			require(ownerMintedCount < MAX_OWNER_MINTS, 'Max owner mints reached');
+			// Make sure owner request to mint isn't over the maxiumum amout of owner mints
+			require((ownerMintedCount + vikingsToMint) <= MAX_OWNER_MINTS, 'Mint exceeds MAX_OWNER_MINTS');
+		}
+	}
+
+	function mintProcess(uint256 vikingsToMint, bool ownerMints) internal {
+		mintChecks(vikingsToMint, false);
 
 		// Store how much it'll cost to mint
 		uint256 mintPrice = calculatePrice(vikingsToMint);
 
-		// Make sure enough WETH has been approved to send
-		require(
-			WETHContract.allowance(msg.sender, address(this)) >= mintPrice,
-			'Not enough WETH approved'
-		);
+		if (!ownerMints) {
+			// Make sure enough WETH has been approved to send
+			require(
+				WETHContract.allowance(msg.sender, address(this)) >= mintPrice,
+				'Not enough WETH approved'
+			);
 
-		// Transfer mintPrice from users wallet to contract
-		require(
-			WETHContract.transferFrom(msg.sender, address(this), mintPrice) == true,
-			'Not enough WETH for TX'
-		);
+			// Transfer mintPrice from users wallet to contract
+			require(
+				WETHContract.transferFrom(msg.sender, address(this), mintPrice) == true,
+				'Not enough WETH for TX'
+			);
+		}
 
 		// An array of Viking IDs to pass to the VikingsMinted event
 		uint256[] memory mintedIds = new uint256[](vikingsToMint);
@@ -135,62 +141,25 @@ contract Nornir is
 			requestIdToVikingId[requestRandomness(keyHash, fee)] = id;
 
 			mintedIds[i] = id;
+
+			if (ownerMints) {
+				ownerMintedCount++;
+			}
 		}
 
 		emit VikingsMinted(mintedIds);
 
-		WETHContract.transfer(address(TREASURY), mintPrice);
+		if (!ownerMints) {
+			WETHContract.transfer(address(TREASURY), mintPrice);
+		}
+	}
+
+	function mintViking(uint256 vikingsToMint) public {
+		mintProcess(vikingsToMint, false);
 	}
 
 	function ownerMintViking(uint256 vikingsToMint) public onlyOwner {
-		// Make sure the launch block has passed
-		require(block.timestamp >= LAUNCH_BLOCK, 'Vikings not yet released');
-		// make sure minting is not paused
-		require(!mintingPaused, 'Minting is paused');
-		// Make sure sale isn't over
-		require(totalSupply() < MAX_VIKINGS, 'Sale complete. Vikings sold out');
-		// Make owner mints aren't exceeded
-		require(
-			ownerMintedCount < MAX_OWNER_MINTS,
-			'Maximum allowance of owner mints reached'
-		);
-		// Make sure user is trying to mint within minting limits
-		require(
-			vikingsToMint > 0 && vikingsToMint <= MAX_BULK,
-			'Can only mint 1-50 Vikings'
-		);
-		// Make sure users request to mint isn't over the maxiumum amout of Vikings
-		require(
-			(totalSupply() + vikingsToMint) <= MAX_VIKINGS,
-			'Mint exceeds MAX_VIKINGS limit'
-		);
-		// Make sure owner request to mint isn't over the maxiumum amout of owner mints
-		require(
-			(ownerMintedCount + vikingsToMint) <= MAX_OWNER_MINTS,
-			'Mint exceeds MAX_OWNER_MINTS limit'
-		);
-
-		// An array of Viking IDs to pass to the VikingsMinted event
-		uint256[] memory mintedIds = new uint256[](vikingsToMint);
-
-		for (uint256 i = 0; i < vikingsToMint; i++) {
-			uint256 id = totalSupply();
-
-			// Mint the Viking
-			_safeMint(msg.sender, id);
-
-			// Set the Viking/Token URI
-			_setTokenURI(id, id.toString());
-
-			// Request Randomness
-			requestIdToVikingId[requestRandomness(keyHash, fee)] = id;
-
-			mintedIds[i] = id;
-
-			ownerMintedCount++;
-		}
-
-		emit VikingsMinted(mintedIds);
+		mintProcess(vikingsToMint, true);
 	}
 
 	function fulfillRandomness(bytes32 requestId, uint256 randomNumber) internal override {
@@ -256,6 +225,7 @@ contract Nornir is
 		return price * qty;
 	}
 
+	// Naming
 	function validateName(string memory str) public pure returns (bool) {
 		bytes memory b = bytes(str);
 		if (b.length < 1) return false;
@@ -308,6 +278,7 @@ contract Nornir is
 		emit NameChange(vikingId, newName);
 	}
 
+	// Sales
 	function isLaunched() public view returns (bool) {
 		return block.timestamp >= LAUNCH_BLOCK;
 	}
