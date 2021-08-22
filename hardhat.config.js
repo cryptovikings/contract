@@ -24,7 +24,7 @@ module.exports = {
 	networks: {
 		hardhat: {
 			forking: {
-				url: process.env.MUMBAI_URL,
+				url: process.env.MUMBAI_RPC,
 				blockNumber: 8366188
 			},
 			accounts: [{
@@ -33,9 +33,14 @@ module.exports = {
 			}]
 		},
 		mumbai: {
-			url: process.env.MUMBAI_URL,
+			url: process.env.MUMBAI_RPC,
 			accounts: [process.env.SECRET],
-			gasPrice: 1000000000
+			gasPrice: 5000000000
+		},
+		polygon: {
+			url: process.env.POLYGON_RPC,
+			accounts: [process.env.SECRET],
+			gasPrice: 5000000000
 		}
 	},
 	solidity: {
