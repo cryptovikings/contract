@@ -1,6 +1,7 @@
 node_modules
 artifacts
 out
+bin
 
 #Hardhat files
 cache

@@ -33,13 +33,13 @@ contract Nornir is
 	uint16 public constant MAX_BULK = 50;
 	address public constant TREASURY = 0xB2b8AA72D9CF3517f7644245Cf7bdc301E9F1c56;
 	address public constant WETH_ADDRESS = 0xA6FA4fB5f76172d178d61B04b0ecd319C5d1C0aa;
-	string public constant BASE_URI = 'http://localhost:8080/api/viking/';
 	uint256 public constant MAX_OWNER_MINTS = 40;
 
 	// Interfaces
 	IWeth public WETHContract;
 
 	// Variables
+	string public baseURI = 'http://localhost:8080/api/viking/';
 	bool public mintingPaused = false;
 	uint256 public vikingCount = 0;
 	uint256 public ownerMintedCount = 0;
@@ -292,6 +292,10 @@ contract Nornir is
 		mintingPaused = false;
 	}
 
+	function changeBaseURI(string memory newURI) public onlyOwner {
+		baseURI = newURI;
+	}
+
 	// Withdraw Methods
 	function withdraw() public payable onlyOwner {
 		uint256 balance = address(this).balance;
@@ -303,8 +307,8 @@ contract Nornir is
 	}
 
 	// Overriding Functions
-	function _baseURI() internal pure override returns (string memory) {
-		return BASE_URI;
+	function _baseURI() internal view override returns (string memory) {
+		return baseURI;
 	}
 
 	function _beforeTokenTransfer(address from, address to, uint256 tokenId) internal override(ERC721, ERC721Enumerable) {
