@@ -32,6 +32,7 @@ contract Nornir is
 	uint16 public constant MAX_VIKINGS = 9873;
 	uint16 public constant MAX_BULK = 50;
 	address public constant TREASURY = 0xB2b8AA72D9CF3517f7644245Cf7bdc301E9F1c56;
+	address public constant WETH_ADDRESS = 0xA6FA4fB5f76172d178d61B04b0ecd319C5d1C0aa;
 	string public constant BASE_URI = 'http://localhost:8080/api/viking/';
 	uint256 public constant MAX_OWNER_MINTS = 40;
 
@@ -74,7 +75,7 @@ contract Nornir is
 		bytes32 _keyHash
 	) VRFConsumerBase(_VRFCoordinator, _LinkToken) ERC721('Viking', 'VKNG') {
 		// Set wETH data
-		WETHContract = IWeth(address(0xA6FA4fB5f76172d178d61B04b0ecd319C5d1C0aa));
+		WETHContract = IWeth(WETH_ADDRESS);
 
 		// Set Chainlink data
 		vrfCoordinator = _VRFCoordinator;
