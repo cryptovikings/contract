@@ -28,18 +28,18 @@ contract Nornir is
 	event NameChange(uint256 id, string name);
 
 	// Constants
-	uint256 public constant LAUNCH_BLOCK = 18053667;
 	uint16 public constant MAX_VIKINGS = 9873;
 	uint16 public constant MAX_BULK = 50;
-	address public constant TREASURY = 0xB2b8AA72D9CF3517f7644245Cf7bdc301E9F1c56;
-	address public constant WETH_ADDRESS = 0xA6FA4fB5f76172d178d61B04b0ecd319C5d1C0aa;
+	address public constant TREASURY = 0x10073Fb6D644113469bD8e30404BCaD6715388ff;
+	address public constant WETH_ADDRESS = 0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619;
 	uint256 public constant MAX_OWNER_MINTS = 40;
 
 	// Interfaces
 	IWeth public WETHContract;
 
 	// Variables
-	string public baseURI = 'http://localhost:8080/api/viking/';
+	uint256 public LAUNCH_BLOCK = 18721000;
+	string public baseURI = 'https://api.cryptovikings.io/viking/';
 	bool public mintingPaused = false;
 	uint256 public vikingCount = 0;
 	uint256 public ownerMintedCount = 0;
@@ -99,7 +99,7 @@ contract Nornir is
 		require((totalSupply() + vikingsToMint) <= MAX_VIKINGS, 'Mint exceeds MAX_VIKINGS limit');
 
 		if (ownerMints) {
-			// Make owner mints aren't exceeded
+			// Make sure owner mints aren't exceeded
 			require(ownerMintedCount < MAX_OWNER_MINTS, 'Max owner mints reached');
 			// Make sure owner request to mint isn't over the maxiumum amout of owner mints
 			require((ownerMintedCount + vikingsToMint) <= MAX_OWNER_MINTS, 'Mint exceeds MAX_OWNER_MINTS');
@@ -107,7 +107,7 @@ contract Nornir is
 	}
 
 	function mintProcess(uint256 vikingsToMint, bool ownerMints) internal {
-		mintChecks(vikingsToMint, false);
+		mintChecks(vikingsToMint, ownerMints);
 
 		// Store how much it'll cost to mint
 		uint256 mintPrice = calculatePrice(vikingsToMint);
@@ -294,6 +294,12 @@ contract Nornir is
 
 	function changeBaseURI(string memory newURI) public onlyOwner {
 		baseURI = newURI;
+	}
+
+	function changeLaunchBlock(uint256 newBlock) public onlyOwner {
+		require(!isLaunched(), 'CryptoVikings already launched');
+
+		LAUNCH_BLOCK = newBlock;
 	}
 
 	// Withdraw Methods
