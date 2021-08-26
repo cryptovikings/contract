@@ -88,7 +88,7 @@ contract Nornir is
 	// Minting
 	function mintChecks(uint256 vikingsToMint, bool ownerMints) internal view {
 		// Make sure the launch block has passed
-		require(block.timestamp >= LAUNCH_BLOCK, 'Vikings not yet released');
+		require(block.number >= LAUNCH_BLOCK, 'Vikings not yet released');
 		// Make sure minting is not paused
 		require(!mintingPaused, 'Minting is paused');
 		// Make sure sale isn't over
@@ -281,7 +281,7 @@ contract Nornir is
 
 	// Sales
 	function isLaunched() public view returns (bool) {
-		return block.timestamp >= LAUNCH_BLOCK;
+		return block.number >= LAUNCH_BLOCK;
 	}
 
 	function pause() public onlyOwner {
