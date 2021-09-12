@@ -30,7 +30,7 @@ contract Nornir is
 	event VikingsMinted(uint256[]);
 	event VikingReady(uint256 vikingId);
 	event VikingGenerated(uint256 vikingId);
-	event VikingResolved(uint256 vikingId, NornirStructs.VikingComponents components, NornirStructs.VikingConditions conditions);
+	event VikingResolved(uint256 vikingId, NornirStructs.VikingStats stats, NornirStructs.VikingComponents components, NornirStructs.VikingConditions conditions);
 	event VikingComplete(uint256 vikingId);
 	event NameChange(uint256 id, string name);
 
@@ -374,7 +374,7 @@ contract Nornir is
 
 		resolvedVikingCount++;
 
-		emit VikingResolved(vikingId, vikingComponents[vikingId], vikingConditions[vikingId]);
+		emit VikingResolved(vikingId, vikingStats[vikingId], vikingComponents[vikingId], vikingConditions[vikingId]);
 	}
 
 	/**
