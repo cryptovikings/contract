@@ -3,55 +3,86 @@ pragma solidity ^0.8.0;
 
 import '../libraries/NornirStructs.sol';
 
+/**
+ * Nornir Resolver Contract
+ *
+ * Implements Condition + Component Name resolution functionality, defining the probability distributions of each asset within their sets
+ *
+ * Separated from the main Nornir Contract due to the Spurious Dragon Contract size limit, as well as to enable pre-launch tweaks and additions to the Viking asset set
+ */
 contract NornirResolver {
 
-    function resolveConditions(NornirStructs.VikingStats memory vikingStats) external pure returns (NornirStructs.VikingConditions memory) {
+	/**
+	 * Given a VikingStats, resolve and return a VikingConditions, denoting the Conditions of each of the Viking's items
+	 *
+	 * @param stats the VikingStats numerically representing a Viking
+	 *
+	 * @return the VikingConditions resolved from the stats
+	 */
+    function resolveConditions(NornirStructs.VikingStats memory stats) external pure returns (NornirStructs.VikingConditions memory) {
         return NornirStructs.VikingConditions(
-			resolveClothesCondition(vikingStats.speed),
-			resolveClothesCondition(vikingStats.stamina),
-			resolveItemCondition(vikingStats.intelligence),
-			resolveItemCondition(vikingStats.defence),
-			resolveItemCondition(vikingStats.attack)
+			resolveClothesCondition(stats.speed),
+			resolveClothesCondition(stats.stamina),
+			resolveItemCondition(stats.intelligence),
+			resolveItemCondition(stats.defence),
+			resolveItemCondition(stats.attack)
 		);
     }
 
-    function resolveComponents(NornirStructs.VikingStats memory vikingStats, NornirStructs.VikingConditions memory vikingConditions) external pure returns (NornirStructs.VikingComponents memory) {
+	/**
+	 * Given a VikingStats and a VikingConditions, resolve and return a VikingComponents, denoting the names of the nine Viking assets
+	 *
+	 * @param stats the VikingStats numerically representing a Viking
+	 * @param conditions the VikingConditions denoting the Condition of each of the Viking's items, used to augment items as appropriate
+	 *
+	 * @return the resolved VikingComponents
+	 */
+    function resolveComponents(NornirStructs.VikingStats memory stats, NornirStructs.VikingConditions memory conditions) external pure returns (NornirStructs.VikingComponents memory) {
         return NornirStructs.VikingComponents(
-			resolveBeard(vikingStats.appearance / 1000000),
-			resolveBody((vikingStats.appearance / 10000) % 100),
-			resolveFace((vikingStats.appearance / 100) % 100),
-			resolveTop(vikingStats.appearance % 100),
-			resolveBoots(vikingStats.boots, vikingConditions.boots),
-			resolveBottoms(vikingStats.bottoms, vikingConditions.bottoms),
-			resolveHelmet(vikingStats.helmet, vikingConditions.helmet),
-			resolveShield(vikingStats.shield, vikingConditions.shield),
-			resolveWeapon(vikingStats.weapon, vikingConditions.weapon)
+			resolveBeard(stats.appearance / 1000000),
+			resolveBody((stats.appearance / 10000) % 100),
+			resolveFace((stats.appearance / 100) % 100),
+			resolveTop(stats.appearance % 100),
+			resolveBoots(stats.boots, conditions.boots),
+			resolveBottoms(stats.bottoms, conditions.bottoms),
+			resolveHelmet(stats.helmet, conditions.helmet),
+			resolveShield(stats.shield, conditions.shield),
+			resolveWeapon(stats.weapon, conditions.weapon)
 		);
     }
 
-    function resolveClothesCondition(uint256 statistic) internal pure returns (string memory) {
+	/**
+	 * Given a statistic, resolve the Condition of an item of Clothing
+	 *
+	 * Clothes Conditions for Boots and Bottoms are dictated by the Speed and Stamina statistics respectively
+	 *
+	 * @param stat the statistic to resolve by
+	 *
+	 * @return the name of the Condition
+	 */
+    function resolveClothesCondition(uint256 stat) internal pure returns (string memory) {
 		// 10%
-        if (statistic <= 9) {
+        if (stat <= 9) {
             return 'Standard';
         }
 
         // 40%
-        if (statistic <= 49) {
+        if (stat <= 49) {
             return 'Ragged';
         }
 
         // 25%
-        if (statistic <= 74) {
+        if (stat <= 74) {
             return 'Rough';
         }
 
         // 15%
-        if (statistic <= 89) {
+        if (stat <= 89) {
             return 'Used';
         }
 
         // 7%
-        if (statistic <= 96) {
+        if (stat <= 96) {
             return 'Good';
         }
 
@@ -59,29 +90,38 @@ contract NornirResolver {
         return 'Perfect';
 	}
 
-	function resolveItemCondition(uint256 statistic) internal pure returns (string memory) {
+	/**
+	 * Given a statistic, resolve the Condition of an Item
+	 *
+	 * Item Conditions for Helmets, Shields and Weapons are dictated by the Intelligence, Defence and Attack statistics respectively
+	 *
+	 * @param stat the statistic to resolve by
+	 *
+	 * @return the name of the Condition
+	 */
+	function resolveItemCondition(uint256 stat) internal pure returns (string memory) {
 		// 10%
-        if (statistic <= 9) {
+        if (stat <= 9) {
             return 'None';
         }
 
         // 40%
-        if (statistic <= 49) {
+        if (stat <= 49) {
             return 'Destroyed';
         }
 
         // 25%
-        if (statistic <= 74) {
+        if (stat <= 74) {
             return 'Battered';
         }
 
         // 15%
-        if (statistic <= 89) {
+        if (stat <= 89) {
             return 'War Torn';
         }
 
         // 7%
-        if (statistic <= 96) {
+        if (stat <= 96) {
             return 'Battle Ready';
         }
 
@@ -89,7 +129,15 @@ contract NornirResolver {
         return 'Flawless';
 	}
 
-	/* NB: Beard is unique as it's the first 2 digits of 'appearance', thus ranged 10-99 */
+	/**
+	 * Given a selector from a VikingStats, resolve the name of a Viking's Beard asset
+	 *
+	 * NB: Beard's selector is unique in that it's the first 2 digits of 'appearance', and thus ranged 10-99
+	 *
+	 * @param selector the selector to resolve by
+	 *
+	 * @return the name of the Viking's Beard asset
+	 */
 	function resolveBeard(uint256 selector) internal pure returns (string memory) {
 		// 20%
         if (selector <= 27) {
@@ -130,6 +178,13 @@ contract NornirResolver {
         return 'Slick';
 	}
 
+	/**
+	 * Given a selector from a VikingStats, resolve the name of a Viking's Body asset
+	 *
+	 * @param selector the selector to resolve by
+	 *
+	 * @return the name of the Viking's Body asset
+	 */
 	function resolveBody(uint256 selector) internal pure returns (string memory) {
 		// 20%
         if (selector <= 19) {
@@ -185,6 +240,13 @@ contract NornirResolver {
         return 'Wolfman';
 	}
 
+	/**
+	 * Given a selector from a VikingStats, resolve the name of a Viking's Face asset
+	 *
+	 * @param selector the selector to resolve by
+	 *
+	 * @return the name of the Viking's Face asset
+	 */
 	function resolveFace(uint256 selector) internal pure returns (string memory) {
 		 // 15%
         if (selector <= 14) {
@@ -235,6 +297,13 @@ contract NornirResolver {
         return 'Cool';
 	}
 
+	/**
+	 * Given a selector from a VikingStats, resolve the name of a Viking's Top asset
+	 *
+	 * @param selector the selector to resolve by
+	 *
+	 * @return the name of the Viking's Top asset
+	 */
 	function resolveTop(uint256 selector) internal pure returns (string memory) {
 		/* Tattered - 30% overall */
         // 6%
@@ -390,6 +459,15 @@ contract NornirResolver {
         return 'Strapped';
 	}
 
+	/**
+	 * Given a selector from a VikingStats and a condition from a VikingConditions, resolve the name of a Viking's Boots asset
+	 *
+	 * Clothes are potentially replaced with a standard asset if the Statistic was low enough to resolve the Condition as 'Standard'
+	 *
+	 * @param selector the selector to resolve by
+	 *
+	 * @return the name of the Viking's Boots asset
+	 */
 	function resolveBoots(uint256 selector, string memory condition) internal pure returns (string memory) {
 		if (strEqual(condition, 'Standard')) return condition;
 
@@ -417,6 +495,15 @@ contract NornirResolver {
         return 'Steel Capped';
 	}
 
+	/**
+	 * Given a selector from a VikingStats and a condition from a VikingConditions, resolve the name of a Viking's Bottoms asset
+	 *
+	 * Clothes are potentially replaced with a standard asset if the Statistic was low enough to resolve the Condition as 'Standard'
+	 *
+	 * @param selector the selector to resolve by
+	 *
+	 * @return the name of the Viking's Bottoms asset
+	 */
 	function resolveBottoms(uint256 selector, string memory condition) internal pure returns (string memory) {
 		if (strEqual(condition, 'Standard')) return condition;
 
@@ -444,6 +531,15 @@ contract NornirResolver {
         return 'Kingly';
 	}
 
+	/**
+	 * Given a selector from a VikingStats and a condition from a VikingConditions, resolve the name of a Viking's Helmet asset
+	 *
+	 * Items are potentially voided if the Statistic was low enough to resolve the Condition as 'None'
+	 *
+	 * @param selector the selector to resolve by
+	 *
+	 * @return the name of the Viking's Helmet asset
+	 */
 	function resolveHelmet(uint256 selector, string memory condition) internal pure returns (string memory) {
 		if (strEqual(condition, 'None')) return condition;
 
@@ -471,6 +567,15 @@ contract NornirResolver {
         return 'Bejeweled';
 	}
 
+	/**
+	 * Given a selector from a VikingStats and a condition from a VikingConditions, resolve the name of a Viking's Shield asset
+	 *
+	 * Items are potentially voided if the Statistic was low enough to resolve the Condition as 'None'
+	 *
+	 * @param selector the selector to resolve by
+	 *
+	 * @return the name of the Viking's Shield asset
+	 */
 	function resolveShield(uint256 selector, string memory condition) internal pure returns (string memory) {
 		if (strEqual(condition, 'None')) return condition;
 
@@ -498,6 +603,15 @@ contract NornirResolver {
         return 'Bones';
 	}
 
+	/**
+	 * Given a selector from a VikingStats and a condition from a VikingConditions, resolve the name of a Viking's Weapon asset
+	 *
+	 * Items are potentially voided if the Statistic was low enough to resolve the Condition as 'None'
+	 *
+	 * @param selector the selector to resolve by
+	 *
+	 * @return the name of the Viking's Weapon asset
+	 */
 	function resolveWeapon(uint256 selector, string memory condition) internal pure returns (string memory) {
 		if (strEqual(condition, 'None')) return condition;
 
@@ -530,8 +644,10 @@ contract NornirResolver {
         return 'Hammer';
 	}
 
+	/**
+	 * String comparison method
+	 */
 	function strEqual(string memory a, string memory b) internal pure returns (bool) {
 		return keccak256(abi.encodePacked(a)) == keccak256(abi.encodePacked(b));
 	}
-
 }

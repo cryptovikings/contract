@@ -12,6 +12,11 @@ import '../interfaces/IWeth.sol';
 import '../interfaces/INornirResolver.sol';
 import '../libraries/NornirStructs.sol';
 
+/**
+ * Main Nornir Contract serving the CryptoVikings collection
+ *
+ * Implements minting functionality, involving a multi-part procedure of Viking representation breakdown + storage based on a VRF-provided number
+ */
 contract Nornir is
 	ERC721,
 	ERC721Enumerable,
@@ -21,6 +26,7 @@ contract Nornir is
 {
 	using Strings for uint256;
 
+	/** Events - all of these are for facilitating the generation/resolution procedure which occurs on mint, as well as front end user feedback for the same */
 	event VikingsMinted(uint256[]);
 	event VikingReady(uint256 vikingId);
 	event VikingGenerated(uint256 vikingId);
@@ -34,6 +40,7 @@ contract Nornir is
 	address public constant WETH_ADDRESS = 0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619;
 	uint256 public constant MAX_OWNER_MINTS = 40;
 
+	/* Contracts to be instantiated for internal use */
 	IWeth public wETHContract;
 	INornirResolver internal nornirResolverContract;
 
@@ -44,17 +51,27 @@ contract Nornir is
 	uint256 public resolvedVikingCount = 0;
 	uint256 public ownerMintedCount = 0;
 
+	/* VRF info */
 	uint256 internal fee;
 	bytes32 internal keyHash;
 	address internal vrfCoordinator;
 
+	/* Mapping of tokenId => VikingStats for on-chain storage of the VRF-derived numerical Viking representation */
 	mapping(uint256 => NornirStructs.VikingStats) public vikingStats;
+	/* Mapping of tokenId => VikingComponents for on-chain storage of the VikingStats-derived Viking Component Names */
 	mapping(uint256 => NornirStructs.VikingComponents) public vikingComponents;
+	/* Mapping of tokenId => VikingConditions for on-chain storage of the VikingStats-derived Viking Item Condition Names */
 	mapping(uint256 => NornirStructs.VikingConditions) public vikingConditions;
+	/* Mapping of tokenId => VRF-provided randomNumber for facilitating a breakup of the generation procedure */
 	mapping(uint256 => uint256) public vikingIdToRandomNumber;
+	/* Mapping of VRF requestId => tokenId for facilitating a breakup of the generation procedure */
 	mapping(bytes32 => uint256) internal requestIdToVikingId;
+	/* Mapping of name => boolean for facilitating unique-name validation */
 	mapping(bytes32 => bool) internal vikingNames;
 
+	/**
+	 * Constructor - set up our external contracts and configure ourselves for VRF usage
+	 */
 	constructor(address _nornirResolver, address _VRFCoordinator, address _LinkToken, bytes32 _keyHash) VRFConsumerBase(_VRFCoordinator, _LinkToken) ERC721('Viking', 'VKNG') {
 		wETHContract = IWeth(WETH_ADDRESS);
 		nornirResolverContract = INornirResolver(_nornirResolver);
@@ -65,21 +82,34 @@ contract Nornir is
 		fee = 0.1 * 10**15;
 	}
 
-	function changeNornirResolver(address _nornirResolver) public onlyOwner {
-		require(!isLaunched(), 'CryptoVikings already launched');
-
-	    nornirResolverContract = INornirResolver(_nornirResolver);
-	}
-
+	/**
+	 * Regular mint method for external users
+	 *
+	 * @param count the number of Vikings to mint
+	 */
 	function mintViking(uint256 count) public {
 		doMint(count, false);
 	}
 
+	/**
+	 * Protected mint method for Contract owner
+	 *
+	 * @param count the number of Vikings to mint
+	 */
 	function ownerMintViking(uint256 count) public onlyOwner {
 		doMint(count, true);
 	}
 
+	/**
+	 * Calculate the price of minting a given number of Vikings
+	 *
+	 * Implements the per-NFT bulk-buy discount
+	 *
+	 * @param qty the number of Vikings to get the price for
+	 */
 	function calculatePrice(uint256 qty) public pure returns (uint256) {
+		require(qty > 0 && qty <= MAX_BULK, 'Can only price 1-50 Vikings');
+
 		uint256 price;
 
 		if (qty >= 25) {
@@ -93,6 +123,15 @@ contract Nornir is
 		return price * qty;
 	}
 
+	/**
+	 * Validate a given Viking Name
+	 *
+	 * Names must be:
+	 *   - max of 25 characters
+	 *   - alhpanumeric
+	 *   - no leading or trailing spaces
+	 *   - no internal contiguous spaces
+	 */
 	function validateName(string memory str) public pure returns (bool) {
 		bytes memory b = bytes(str);
 		if (b.length < 1) return false;
@@ -120,6 +159,9 @@ contract Nornir is
 		return true;
 	}
 
+	/**
+	 * Viking name change method - only the current owner can change the name and the name must be valid
+	 */
 	function changeName(uint256 vikingId, string memory newName) public {
 		require(msg.sender == ownerOf(vikingId), 'Sender does not own Viking');
 		require(validateName(newName) == true, 'Name is invalid');
@@ -133,33 +175,67 @@ contract Nornir is
 		emit NameChange(vikingId, newName);
 	}
 
+	/**
+	 * Check if minting is live
+	 */
 	function isLaunched() public view returns (bool) {
 		return block.number >= launchBlock;
 	}
 
+	/**
+	 * Protected method for pausing minting
+	 */
 	function pause() public onlyOwner {
 		mintingPaused = true;
 	}
 
+	/**
+	 * Protected method for unpausing minting
+	 */
 	function unpause() public onlyOwner {
 		mintingPaused = false;
 	}
 
+	/**
+	 * Protected method for changing the baseURI, facilitating future migrations of the CryptoVikings metadata
+	 */
 	function changeBaseURI(string memory newURI) public onlyOwner {
 		baseURI = newURI;
 	}
 
+	/**
+	 * Protected method for changing the launch block, facilitating tweaks towards an intended launch time
+	 *
+	 * Block may not be changed if launch has already passed
+	 */
 	function changeLaunchBlock(uint256 newBlock) public onlyOwner {
 		require(!isLaunched(), 'CryptoVikings already launched');
 
 		launchBlock = newBlock;
 	}
 
+	/**
+	 * Protected method for changing the NornirResolver Contract, facilitating improvements/changes to resolution
+	 *
+	 * Resolver may not be changed if launch has already passed
+	 */
+	function changeNornirResolver(address _nornirResolver) public onlyOwner {
+		require(!isLaunched(), 'CryptoVikings already launched');
+
+	    nornirResolverContract = INornirResolver(_nornirResolver);
+	}
+
+	/**
+	 * Protected withdraw method
+	 */
 	function withdraw() public payable onlyOwner {
 		uint256 balance = address(this).balance;
 		payable(TREASURY).transfer(balance);
 	}
 
+	/**
+	 * Protected ERC-20 withdraw method
+	 */
 	function withdrawErc20(IERC20 token) public onlyOwner {
 		token.transfer(TREASURY, token.balanceOf(address(this)));
 	}
@@ -231,7 +307,7 @@ contract Nornir is
 	/**
 	 * VRF fulfillRandomness() override
 	 *
-	 * Associates the received random number with a token ID using the requestId as a connector
+	 * Associates the received random number with a token ID using the requestId as a connector before prompting the API to begin generation via VikingReady
 	 *
 	 * @param requestId the VRF request ID
 	 * @param randomNumber the supplied random number
@@ -245,7 +321,7 @@ contract Nornir is
 	}
 
 	/**
-	 * Protected Viking generation procedure
+	 * Protected Viking generation - step 1 of the generation/resolution procedure
      *
 	 * For the given token ID, retrieve the random number and break it down into a VikingStats
 	 *
@@ -282,7 +358,7 @@ contract Nornir is
 	}
 
 	/**
-	 * Protected Viking component/condition resolution procedure
+	 * Protected Viking component/condition resolution procedure, calling out to the NornirResolver Contract - step 2 of the generation/resolution procedure
 	 *
 	 * For the given token ID, resolve all component names and item conditions using the existing associated VikingStats
 	 *
@@ -302,7 +378,7 @@ contract Nornir is
 	}
 
 	/**
-	 * Protected Viking completion procedure
+	 * Protected Viking completion procedure = step 3 of the generation/resolution procedure
 	 *
 	 * Just emits an event that the front end can pick up to complete the walkthrough UX and enable the reveal
 	 *
@@ -312,7 +388,7 @@ contract Nornir is
 		emit VikingComplete(vikingId);
 	}
 
-
+	/** ERC-721 overrides */
 	function _baseURI() internal view override returns (string memory) {
 		return baseURI;
 	}
@@ -325,15 +401,13 @@ contract Nornir is
 		super._burn(tokenId);
 	}
 
-	function tokenURI(uint256 tokenId) public view override(ERC721, ERC721URIStorage) returns (string memory)
-	{
+	function tokenURI(uint256 tokenId) public view override(ERC721, ERC721URIStorage) returns (string memory) {
 		return super.tokenURI(tokenId);
 	}
 
 	function supportsInterface(bytes4 interfaceId) public view override(ERC721, ERC721Enumerable) returns (bool) {
 		return super.supportsInterface(interfaceId);
 	}
-
 
 	/**
 	 * Override isApprovedForAll as a convenience for auto-allowing OpenSea's Polygon proxy Contract

@@ -1,7 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+/**
+ * Structs required by both Nornir and NornirResolver implemented in a library for sharing
+ */
 library NornirStructs {
+
+	/** VikingStats - a store for the VRF-derived numerical representation of a Viking */
     struct VikingStats {
 		string name;
 		uint256 boots;
@@ -17,6 +22,7 @@ library NornirStructs {
 		uint256 appearance;
 	}
 
+	/** VikingComponents - a store for the VikingStats-derived resolved Component asset names for a Viking */
 	struct VikingComponents {
 		string beard;
 		string body;
@@ -29,6 +35,7 @@ library NornirStructs {
 		string weapon;
 	}
 
+	/** VikingConditions - a store for the VikingStats-derived resolved Component Condition names for a Viking's Clothes + Items */
 	struct VikingConditions {
 		string boots;
 		string bottoms;
