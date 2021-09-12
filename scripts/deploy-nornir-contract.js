@@ -37,14 +37,20 @@ async function main() {
 
 	console.log("Account balance:", (await deployer.getBalance()).toString());
 
+	// deploy the Resolver and Nornir, providing the Resolver's address
+	const NornirResolver = await hre.ethers.getContractFactory('NornirResolver');
 	const Nornir = await hre.ethers.getContractFactory('Nornir');
 
+	const nornirResolver = await NornirResolver.deploy();
+
 	const nornir = await Nornir.deploy(
+		nornirResolver.address,
 		ChainLinkData[chain].vrfCoordinator,
 		ChainLinkData[chain].linkToken,
 		ChainLinkData[chain].keyHash
 	);
 
+	console.log('Resolver Address: ', nornirResolver.address);
 	console.log('Token Address: ', nornir.address);
 }
 

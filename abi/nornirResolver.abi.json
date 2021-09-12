@@ -1,0 +1,270 @@
+[
+	{
+		"inputs": [
+			{
+				"components": [
+					{
+						"internalType": "string",
+						"name": "name",
+						"type": "string"
+					},
+					{
+						"internalType": "uint256",
+						"name": "boots",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "bottoms",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "helmet",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "shield",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "weapon",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "attack",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "defence",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "intelligence",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "speed",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "stamina",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "appearance",
+						"type": "uint256"
+					}
+				],
+				"internalType": "struct NornirStructs.VikingStats",
+				"name": "stats",
+				"type": "tuple"
+			},
+			{
+				"components": [
+					{
+						"internalType": "string",
+						"name": "boots",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "bottoms",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "helmet",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "shield",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "weapon",
+						"type": "string"
+					}
+				],
+				"internalType": "struct NornirStructs.VikingConditions",
+				"name": "conditions",
+				"type": "tuple"
+			}
+		],
+		"name": "resolveComponents",
+		"outputs": [
+			{
+				"components": [
+					{
+						"internalType": "string",
+						"name": "beard",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "body",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "face",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "top",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "boots",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "bottoms",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "helmet",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "shield",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "weapon",
+						"type": "string"
+					}
+				],
+				"internalType": "struct NornirStructs.VikingComponents",
+				"name": "",
+				"type": "tuple"
+			}
+		],
+		"stateMutability": "pure",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"components": [
+					{
+						"internalType": "string",
+						"name": "name",
+						"type": "string"
+					},
+					{
+						"internalType": "uint256",
+						"name": "boots",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "bottoms",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "helmet",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "shield",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "weapon",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "attack",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "defence",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "intelligence",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "speed",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "stamina",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "appearance",
+						"type": "uint256"
+					}
+				],
+				"internalType": "struct NornirStructs.VikingStats",
+				"name": "stats",
+				"type": "tuple"
+			}
+		],
+		"name": "resolveConditions",
+		"outputs": [
+			{
+				"components": [
+					{
+						"internalType": "string",
+						"name": "boots",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "bottoms",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "helmet",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "shield",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "weapon",
+						"type": "string"
+					}
+				],
+				"internalType": "struct NornirStructs.VikingConditions",
+				"name": "",
+				"type": "tuple"
+			}
+		],
+		"stateMutability": "pure",
+		"type": "function"
+	}
+]
