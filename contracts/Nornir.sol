@@ -101,6 +101,13 @@ contract Nornir is
 	}
 
 	/**
+	 * Retrieve all Viking information for a given Token ID at once
+	 */
+	function getVikingData(uint256 vikingId) public view returns (NornirStructs.VikingStats memory, NornirStructs.VikingComponents memory, NornirStructs.VikingConditions memory) {
+		return (vikingStats[vikingId], vikingComponents[vikingId], vikingConditions[vikingId]);
+	}
+
+	/**
 	 * Calculate the price of minting a given number of Vikings
 	 *
 	 * Implements the per-NFT bulk-buy discount
@@ -348,6 +355,7 @@ contract Nornir is
 			(randomNumber % 10**28) / 10**20
 		);
 
+		// in normal operation, this should match totalSupply()
 		generatedVikingCount++;
 
 		vikingNames[
@@ -372,6 +380,7 @@ contract Nornir is
 		vikingConditions[vikingId] = nornirResolverContract.resolveConditions(vikingStats[vikingId]);
 		vikingComponents[vikingId] = nornirResolverContract.resolveComponents(vikingStats[vikingId], vikingConditions[vikingId]);
 
+		// in normal operation, this should match generatedVikingCount
 		resolvedVikingCount++;
 
 		emit VikingResolved(vikingId, vikingStats[vikingId], vikingComponents[vikingId], vikingConditions[vikingId]);

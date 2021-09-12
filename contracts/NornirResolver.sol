@@ -171,11 +171,11 @@ contract NornirResolver {
 
         // ~6.7%
         if (selector <= 96) {
-            return 'Sophisticated';
+            return 'Slick';
         }
 
         // ~3.3%
-        return 'Slick';
+        return 'Sophisticated';
 	}
 
 	/**
@@ -630,7 +630,7 @@ contract NornirResolver {
             return 'Sword';
         }
 
-        // 15%
+        // 10%
         if (selector <= 89) {
             return 'Trident';
         }
