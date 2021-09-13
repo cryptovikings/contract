@@ -135,11 +135,11 @@ contract Nornir is
 		uint256 price;
 
 		if (qty >= 25) {
-			price = 73000000000000000; // 0.073 ETH
+			price = 65000000000000000; // 0.065 ETH
 		} else if (qty >= 10) {
-			price = 87300000000000000; // 0.0873 ETH
+			price = 75000000000000000; // 0.075 ETH
 		} else {
-			price = 98730000000000000; // 0.09873 ETH
+			price = 85000000000000000; // 0.085 ETH
 		}
 
 		return price * qty;
