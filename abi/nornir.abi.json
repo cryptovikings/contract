@@ -3,11 +3,6 @@
 		"inputs": [
 			{
 				"internalType": "address",
-				"name": "_nornirResolver",
-				"type": "address"
-			},
-			{
-				"internalType": "address",
 				"name": "_VRFCoordinator",
 				"type": "address"
 			},
@@ -855,6 +850,19 @@
 				"internalType": "string",
 				"name": "",
 				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "nornirResolverContract",
+		"outputs": [
+			{
+				"internalType": "contract INornirResolver",
+				"name": "",
+				"type": "address"
 			}
 		],
 		"stateMutability": "view",

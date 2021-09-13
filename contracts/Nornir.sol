@@ -42,7 +42,7 @@ contract Nornir is
 
 	/* Contracts to be instantiated for internal use */
 	IWeth public wETHContract;
-	INornirResolver internal nornirResolverContract;
+	INornirResolver public nornirResolverContract;
 
 	uint256 public launchBlock = 19498000;
 	string public baseURI = 'https://api.cryptovikings.io/viking/';
@@ -72,9 +72,8 @@ contract Nornir is
 	/**
 	 * Constructor - set up our external contracts and configure ourselves for VRF usage
 	 */
-	constructor(address _nornirResolver, address _VRFCoordinator, address _LinkToken, bytes32 _keyHash) VRFConsumerBase(_VRFCoordinator, _LinkToken) ERC721('Viking', 'VKNG') {
+	constructor(address _VRFCoordinator, address _LinkToken, bytes32 _keyHash) VRFConsumerBase(_VRFCoordinator, _LinkToken) ERC721('Viking', 'VKNG') {
 		wETHContract = IWeth(WETH_ADDRESS);
-		nornirResolverContract = INornirResolver(_nornirResolver);
 
 		vrfCoordinator = _VRFCoordinator;
 		keyHash = _keyHash;
@@ -222,13 +221,11 @@ contract Nornir is
 	}
 
 	/**
-	 * Protected method for changing the NornirResolver Contract, facilitating improvements/changes to resolution
-	 *
-	 * Resolver may not be changed if launch has already passed
+	 * Protected method for changing the NornirResolver Contract, facilitating improvements/changes/fixes to resolution
+     *
+	 * Resolver is not set in constructor and is required for validateMint(), so this must be called at least once
 	 */
 	function changeNornirResolver(address _nornirResolver) public onlyOwner {
-		require(!isLaunched(), 'CryptoVikings already launched');
-
 	    nornirResolverContract = INornirResolver(_nornirResolver);
 	}
 
@@ -256,6 +253,7 @@ contract Nornir is
 	function validateMint(uint256 count, bool isOwner) internal view {
 		require(block.number >= launchBlock, 'Vikings not yet released');
 		require(!mintingPaused, 'Minting is paused');
+		require(address(nornirResolverContract) != address(0), 'NornirResolver not set');
 		require(totalSupply() < MAX_VIKINGS, 'Sale complete. Vikings sold out');
 		require(count > 0 && count <= MAX_BULK, 'Can only mint 1-50 Vikings');
 		require((totalSupply() + count) <= MAX_VIKINGS, 'Mint exceeds MAX_VIKINGS limit');
