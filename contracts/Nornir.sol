@@ -36,16 +36,32 @@ contract Nornir is
 
 	uint16 public constant MAX_VIKINGS = 9873;
 	uint16 public constant MAX_BULK = 50;
-	address public constant TREASURY = 0x10073Fb6D644113469bD8e30404BCaD6715388ff;
-	address public constant WETH_ADDRESS = 0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619;
 	uint256 public constant MAX_OWNER_MINTS = 40;
+
+	// TODO polygon addresses
+	// address public constant TREASURY = 0x10073Fb6D644113469bD8e30404BCaD6715388ff;
+	// address public constant WETH_ADDRESS = 0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619;
+
+	// TODO mumbai addresses
+	address public constant TREASURY = 0xCD6a2Db199c378B07C889D44B61Cb5867Ff5Ae41;
+	address public constant WETH_ADDRESS = 0xA6FA4fB5f76172d178d61B04b0ecd319C5d1C0aa;
 
 	/* Contracts to be instantiated for internal use */
 	IWeth public wETHContract;
 	INornirResolver public nornirResolverContract;
 
-	uint256 public launchBlock = 19498000;
-	string public baseURI = 'https://api.cryptovikings.io/viking/';
+	// TODO polygon launch block
+	// uint256 public launchBlock = 19498000;
+
+	// TODO mumbai launch block
+	uint256 public launchBlock = 18879857;
+
+	// TODO live baseURI
+	// string public baseURI = 'https://api.cryptovikings.io/viking/';
+
+	// TODO test baseURI
+	string public baseURI = 'http://localhost:8080/viking/';
+
 	bool public mintingPaused = false;
 	uint256 public generatedVikingCount = 0;
 	uint256 public resolvedVikingCount = 0;

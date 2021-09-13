@@ -3,8 +3,10 @@
 	"version": "0.0.1",
 	"scripts": {
 		"flatten": "./node_modules/.bin/poa-solidity-flattener ./contracts/Nornir.sol",
-		"deploy": "./node_modules/.bin/hardhat run --network polygon scripts/deploy-nornir-contract.js",
-		"deployTest": "./node_modules/.bin/hardhat run --network mumbai scripts/deploy-nornir-contract.js",
+		"deployNornir": "./node_modules/.bin/hardhat run --network polygon scripts/deploy-nornir-contract.js",
+		"deployNornirTest": "./node_modules/.bin/hardhat run --network mumbai scripts/deploy-nornir-contract.js",
+		"deployNornirResolver": "./node_modules/.bin/hardhat run --network polygon scripts/deploy-nornir-resolver-contract.js",
+		"deployNornirResolverTest": "./node_modules/.bin/hardhat run --network mumbai scripts/deploy-nornir-resolver-contract.js",
 		"compile": "node -r ./dotenv.js ./node_modules/.bin/hardhat compile",
 		"solhint": "./node_modules/.bin/solhint -f table contracts/**/*.sol",
 		"solhintfix": "./node_modules/.bin/solhint -f table --fix contracts/**/*.sol"
