@@ -36,7 +36,7 @@ contract Nornir is
 
 	uint16 public constant MAX_VIKINGS = 9873;
 	uint16 public constant MAX_BULK = 50;
-	uint256 public constant MAX_OWNER_MINTS = 40;
+	uint16 public constant MAX_OWNER_MINTS = 40;
 
 	// TODO polygon addresses
 	// address public constant TREASURY = 0x10073Fb6D644113469bD8e30404BCaD6715388ff;
@@ -63,6 +63,7 @@ contract Nornir is
 	string public baseURI = 'http://localhost:8080/viking/';
 
 	bool public mintingPaused = false;
+	bool public presaleActive = false;
 	uint256 public generatedVikingCount = 0;
 	uint256 public resolvedVikingCount = 0;
 	uint256 public ownerMintedCount = 0;
@@ -84,6 +85,8 @@ contract Nornir is
 	mapping(bytes32 => uint256) internal requestIdToVikingId;
 	/* Mapping of name => boolean for facilitating unique-name validation */
 	mapping(bytes32 => bool) internal vikingNames;
+	/** Mapping of address => boolean for whitelisting wallets for presale */
+	mapping(address => bool) internal presaleWhitelist;
 
 	/**
 	 * Constructor - set up our external contracts and configure ourselves for VRF usage
@@ -129,20 +132,22 @@ contract Nornir is
 	 *
 	 * @param qty the number of Vikings to get the price for
 	 */
-	function calculatePrice(uint256 qty) public pure returns (uint256) {
+	function calculatePrice(uint256 qty) public view returns (uint256) {
 		require(qty > 0 && qty <= MAX_BULK, 'Can only price 1-50 Vikings');
 
-		uint256 price;
-
-		if (qty >= 25) {
-			price = 65000000000000000; // 0.065 ETH
-		} else if (qty >= 10) {
-			price = 75000000000000000; // 0.075 ETH
-		} else {
-			price = 85000000000000000; // 0.085 ETH
+		if (presaleActive && totalSupply() < 500) {
+			return 50000000000000000 * qty; // 0.05 WETH each
 		}
 
-		return price * qty;
+		if (qty >= 25) {
+			return 65000000000000000 * qty; // 0.065 WETH each
+		}
+
+		if (qty >= 10) {
+			return 75000000000000000 * qty; // 0.075 WETH each
+		}
+
+		return 85000000000000000 * qty; // 0.085 WETH each
 	}
 
 	/**
@@ -205,17 +210,17 @@ contract Nornir is
 	}
 
 	/**
-	 * Protected method for pausing minting
+	 * Protected method for toggling mintingPaused
 	 */
-	function pause() public onlyOwner {
-		mintingPaused = true;
+	function togglePaused() public onlyOwner {
+		mintingPaused = !mintingPaused;
 	}
 
 	/**
-	 * Protected method for unpausing minting
+	 * Protected method for toggling the presale
 	 */
-	function unpause() public onlyOwner {
-		mintingPaused = false;
+	function togglePresale() public onlyOwner {
+		presaleActive = !presaleActive;
 	}
 
 	/**
@@ -223,6 +228,13 @@ contract Nornir is
 	 */
 	function changeBaseURI(string memory newURI) public onlyOwner {
 		baseURI = newURI;
+	}
+
+	/**
+	 * Protected method for whitelisting a wallet address
+	 */
+	function whitelist(address wallet) public onlyOwner {
+		presaleWhitelist[wallet] = true;
 	}
 
 	/**
@@ -267,16 +279,30 @@ contract Nornir is
 	 * @param isOwner whether or not we're validating an owner mint
 	 */
 	function validateMint(uint256 count, bool isOwner) internal view {
-		require(block.number >= launchBlock, 'Vikings not yet released');
+		// generic requires for both presale and full sale
+		require(presaleActive || block.number >= launchBlock, 'Vikings not yet released');
 		require(!mintingPaused, 'Minting is paused');
 		require(address(nornirResolverContract) != address(0), 'NornirResolver not set');
-		require(totalSupply() < MAX_VIKINGS, 'Sale complete. Vikings sold out');
-		require(count > 0 && count <= MAX_BULK, 'Can only mint 1-50 Vikings');
-		require((totalSupply() + count) <= MAX_VIKINGS, 'Mint exceeds MAX_VIKINGS limit');
+		require(totalSupply() < MAX_VIKINGS, 'Vikings sold out');
+
+		if (presaleActive) {
+			// specific requires for presale
+			require(totalSupply() < 500, 'Presale sold out');
+			require(presaleWhitelist[msg.sender], 'Wallet not whitelisted');
+			require(balanceOf(msg.sender) < 5, 'Wallet already has 5 Vikings');
+			require(count > 0 && count <= 5, 'Can only mint 1-5 Vikings');
+			require(balanceOf(msg.sender) + count <= 5, 'Mint exceeds 5 Vikings');
+		}
+		else {
+			// specific requires for full sale
+			require(count > 0 && count <= MAX_BULK, 'Can only mint 1-50 Vikings');
+			require(totalSupply() + count <= MAX_VIKINGS, 'Mint exceeds MAX_VIKINGS limit');
+		}
 
 		if (isOwner) {
+			// specific requires for owner mints
 			require(ownerMintedCount < MAX_OWNER_MINTS, 'Max owner mints reached');
-			require((ownerMintedCount + count) <= MAX_OWNER_MINTS, 'Mint exceeds MAX_OWNER_MINTS');
+			require(ownerMintedCount + count <= MAX_OWNER_MINTS, 'Mint exceeds MAX_OWNER_MINTS');
 		}
 	}
 
