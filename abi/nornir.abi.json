@@ -942,6 +942,25 @@
 	{
 		"inputs": [
 			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "presaleWhitelist",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
 				"internalType": "bytes32",
 				"name": "requestId",
 				"type": "bytes32"
@@ -1447,7 +1466,7 @@
 				"type": "address"
 			}
 		],
-		"name": "whiteListWallet",
+		"name": "whitelist",
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"

@@ -54,7 +54,7 @@ contract Nornir is
 	// uint256 public launchBlock = 19498000;
 
 	// TODO mumbai launch block
-	uint256 public launchBlock = 18879857;
+	uint256 public launchBlock = 19500000;
 
 	// TODO live baseURI
 	// string public baseURI = 'https://api.cryptovikings.io/viking/';
@@ -86,7 +86,7 @@ contract Nornir is
 	/* Mapping of name => boolean for facilitating unique-name validation */
 	mapping(bytes32 => bool) internal vikingNames;
 	/** Mapping of address => boolean for whitelisting wallets for presale */
-	mapping(address => bool) internal presaleWhitelist;
+	mapping(address => bool) public presaleWhitelist;
 
 	/**
 	 * Constructor - set up our external contracts and configure ourselves for VRF usage
