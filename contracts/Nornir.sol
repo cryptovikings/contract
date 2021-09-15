@@ -35,7 +35,9 @@ contract Nornir is
 	event NameChange(uint256 id, string name);
 
 	uint16 public constant MAX_VIKINGS = 9873;
+	uint16 public constant MAX_PRESALE_VIKINGS = 500;
 	uint16 public constant MAX_BULK = 50;
+	uint16 public constant MAX_PRESALE_BALANCE = 5;
 	uint16 public constant MAX_OWNER_MINTS = 40;
 
 	// TODO polygon addresses
@@ -135,7 +137,7 @@ contract Nornir is
 	function calculatePrice(uint256 qty) public view returns (uint256) {
 		require(qty > 0 && qty <= MAX_BULK, 'Can only price 1-50 Vikings');
 
-		if (presaleActive && totalSupply() < 500) {
+		if (presaleActive) {
 			return 50000000000000000 * qty; // 0.05 WETH each
 		}
 
@@ -279,28 +281,30 @@ contract Nornir is
 	 * @param isOwner whether or not we're validating an owner mint
 	 */
 	function validateMint(uint256 count, bool isOwner) internal view {
-		// generic requires for both presale and full sale
 		require(presaleActive || block.number >= launchBlock, 'Vikings not yet released');
 		require(!mintingPaused, 'Minting is paused');
 		require(address(nornirResolverContract) != address(0), 'NornirResolver not set');
-		require(totalSupply() < MAX_VIKINGS, 'Vikings sold out');
+
+		uint256 supply = totalSupply();
+		uint16 limit = presaleActive ? MAX_PRESALE_VIKINGS : MAX_VIKINGS;
+		uint16 max = presaleActive ? MAX_PRESALE_BALANCE : MAX_BULK;
+
+		require(supply < limit, 'Sold out');
+		require(count > 0, 'Mint at least 1 Viking');
+		require(count <= max, 'Too many Vikings');
+		require(supply + count <= limit, 'Mint exceeds limit');
 
 		if (presaleActive) {
-			// specific requires for presale
-			require(totalSupply() < 500, 'Presale sold out');
+			// additional checks for presale mints
+			uint256 balance = balanceOf(msg.sender);
+
 			require(presaleWhitelist[msg.sender], 'Wallet not whitelisted');
-			require(balanceOf(msg.sender) < 5, 'Wallet already has 5 Vikings');
-			require(count > 0 && count <= 5, 'Can only mint 1-5 Vikings');
-			require(balanceOf(msg.sender) + count <= 5, 'Mint exceeds 5 Vikings');
-		}
-		else {
-			// specific requires for full sale
-			require(count > 0 && count <= MAX_BULK, 'Can only mint 1-50 Vikings');
-			require(totalSupply() + count <= MAX_VIKINGS, 'Mint exceeds MAX_VIKINGS limit');
+			require(balance < max, 'Presale limit reached');
+			require(balance + count <= max, 'Mint exceeds presale limit');
 		}
 
 		if (isOwner) {
-			// specific requires for owner mints
+			// additional checks for owner mints
 			require(ownerMintedCount < MAX_OWNER_MINTS, 'Max owner mints reached');
 			require(ownerMintedCount + count <= MAX_OWNER_MINTS, 'Mint exceeds MAX_OWNER_MINTS');
 		}
