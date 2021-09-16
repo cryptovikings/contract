@@ -40,7 +40,7 @@ module.exports = {
 		polygon: {
 			url: process.env.POLYGON_RPC,
 			accounts: [process.env.SECRET],
-			gasPrice: 5000000000
+			gasPrice: 50000000000
 		}
 	},
 	solidity: {
