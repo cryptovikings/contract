@@ -757,12 +757,12 @@
 		"inputs": [
 			{
 				"internalType": "address",
-				"name": "_owner",
+				"name": "owner",
 				"type": "address"
 			},
 			{
 				"internalType": "address",
-				"name": "_operator",
+				"name": "operator",
 				"type": "address"
 			}
 		],
@@ -770,7 +770,7 @@
 		"outputs": [
 			{
 				"internalType": "bool",
-				"name": "isOperator",
+				"name": "",
 				"type": "bool"
 			}
 		],
@@ -1470,6 +1470,11 @@
 				"internalType": "address",
 				"name": "wallet",
 				"type": "address"
+			},
+			{
+				"internalType": "bool",
+				"name": "status",
+				"type": "bool"
 			}
 		],
 		"name": "whitelist",

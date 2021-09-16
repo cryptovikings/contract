@@ -36,8 +36,8 @@ contract Nornir is
 
 	uint16 public constant MAX_VIKINGS = 9873;
 	uint16 public constant MAX_BULK = 50;
-	uint16 public constant MAX_OWNER_MINTS = 40;
-	uint16 internal constant MAX_PRESALE_VIKINGS = 500;
+	uint16 public constant MAX_OWNER_MINTS = 50;
+	uint16 internal constant MAX_PRESALE_VIKINGS = 505;
 	uint16 internal constant MAX_PRESALE_MINTS = 5;
 
 	// TODO polygon addresses
@@ -53,7 +53,7 @@ contract Nornir is
 	INornirResolver public nornirResolverContract;
 
 	// TODO polygon launch block
-	// uint256 public launchBlock = 19498000;
+	// uint256 public launchBlock = 19435000;
 
 	// TODO mumbai launch block
 	uint256 public launchBlock = 19500000;
@@ -237,8 +237,8 @@ contract Nornir is
 	/**
 	 * Protected method for whitelisting a wallet address
 	 */
-	function whitelist(address wallet) public onlyOwner {
-		presaleWhitelist[wallet] = true;
+	function whitelist(address wallet, bool status) public onlyOwner {
+		presaleWhitelist[wallet] = status;
 	}
 
 	/**
@@ -463,16 +463,5 @@ contract Nornir is
 
 	function supportsInterface(bytes4 interfaceId) public view override(ERC721, ERC721Enumerable) returns (bool) {
 		return super.supportsInterface(interfaceId);
-	}
-
-	/**
-	 * Override isApprovedForAll as a convenience for auto-allowing OpenSea's Polygon proxy Contract
-	 */
-	function isApprovedForAll(address _owner, address _operator) public override view returns (bool isOperator) {
-        if (_operator == address(0x58807baD0B376efc12F5AD86aAc70E78ed67deaE)) {
-            return true;
-        }
-
-        return ERC721.isApprovedForAll(_owner, _operator);
 	}
 }
