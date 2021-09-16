@@ -66,27 +66,27 @@ contract NornirResolver {
             return 'Standard';
         }
 
-        // 40%
-        if (stat <= 49) {
+        // 30%
+        if (stat <= 39) {
             return 'Ragged';
         }
 
         // 25%
-        if (stat <= 74) {
+        if (stat <= 64) {
             return 'Rough';
         }
 
-        // 15%
-        if (stat <= 89) {
+        // 20%
+        if (stat <= 84) {
             return 'Used';
         }
 
-        // 7%
-        if (stat <= 96) {
+        // 10%
+        if (stat <= 94) {
             return 'Good';
         }
 
-        // 3%
+        // 5%
         return 'Perfect';
 	}
 
@@ -105,27 +105,27 @@ contract NornirResolver {
             return 'None';
         }
 
-        // 40%
-        if (stat <= 49) {
+        // 30%
+        if (stat <= 39) {
             return 'Destroyed';
         }
 
         // 25%
-        if (stat <= 74) {
+        if (stat <= 64) {
             return 'Battered';
         }
 
-        // 15%
-        if (stat <= 89) {
+        // 20%
+        if (stat <= 84) {
             return 'War Torn';
         }
 
-        // 7%
-        if (stat <= 96) {
+        // 10%
+        if (stat <= 94) {
             return 'Battle Ready';
         }
 
-        // 3%
+        // 5%
         return 'Flawless';
 	}
 
@@ -139,42 +139,42 @@ contract NornirResolver {
 	 * @return the name of the Viking's Beard asset
 	 */
 	function resolveBeard(uint256 selector) internal pure returns (string memory) {
-		// 20%
+		// 20% (18 / 90)
         if (selector <= 27) {
             return 'Stubble';
         }
 
-        // 20%
+        // 20% (18 / 90)
         if (selector <= 45) {
             return 'Trim';
         }
 
-        // 20%
-        if (selector <= 63) {
+        // ~15.56% (14 / 90)
+        if (selector <= 59) {
             return 'Bushy';
         }
 
-        // 10%
+        // ~14.43% (13 / 90)
         if (selector <= 72) {
             return 'Beaded';
         }
 
-        // 10%
+        // 10% (9 / 90)
         if (selector <= 81) {
             return 'Straggly';
         }
 
-        // 10%
+        // 10% (9 / 90)
         if (selector <= 90) {
             return 'Goatee';
         }
 
-        // ~6.7%
+        // ~6.67% (6 / 90)
         if (selector <= 96) {
             return 'Slick';
         }
 
-        // ~3.3%
+        // 3.32%% (3 / 90)
         return 'Sophisticated';
 	}
 
@@ -186,57 +186,57 @@ contract NornirResolver {
 	 * @return the name of the Viking's Body asset
 	 */
 	function resolveBody(uint256 selector) internal pure returns (string memory) {
-		// 20%
-        if (selector <= 19) {
+		// 13%
+        if (selector <= 12) {
             return 'Base 1';
         }
 
-        // 20%
-        if (selector <= 39) {
+        // 13%
+        if (selector <= 25) {
             return 'Base 2';
         }
 
-        // 20%
-        if (selector <= 59) {
+        // 13%
+        if (selector <= 38) {
             return 'Base 3';
         }
 
-        // 10%
-        if (selector <= 69) {
-            return 'Inked';
-        }
-
-        // 10%
-        if (selector <= 79) {
+        // 13%
+        if (selector <= 51) {
             return 'Tatted';
         }
 
-        // 5%
-        if (selector <= 84) {
+        // 11%
+        if (selector <= 62) {
+            return 'Inked';
+        }
+
+        // 9%
+        if (selector <= 71) {
             return 'Devil';
         }
 
-        // 5%
-        if (selector <= 89) {
+        // 9%
+        if (selector <= 80) {
             return 'Zombie (Green)';
         }
 
-        // 4%
-        if (selector <= 93) {
+        // 7%
+        if (selector <= 87) {
             return 'Pigman';
         }
 
-        // 3%
-        if (selector <= 96) {
+        // 6%
+        if (selector <= 93) {
             return 'Robot';
         }
 
-        // 2%
-        if (selector <= 98) {
+        // 4%
+        if (selector <= 97) {
             return 'Zombie (Blue)';
         }
 
-        // 1%
+        // 2%
         return 'Wolfman';
 	}
 
@@ -248,7 +248,7 @@ contract NornirResolver {
 	 * @return the name of the Viking's Face asset
 	 */
 	function resolveFace(uint256 selector) internal pure returns (string memory) {
-		 // 15%
+		// 15%
         if (selector <= 14) {
             return 'Smirk';
         }
@@ -258,27 +258,27 @@ contract NornirResolver {
             return 'Stern';
         }
 
-        // 13%
-        if (selector <= 42) {
-            return 'Worried';
+        // 15%
+        if (selector <= 44) {
+            return 'Grin';
         }
 
         // 12%
-        if (selector <= 54) {
+        if (selector <= 56) {
             return 'Angry';
         }
 
         // 10%
-        if (selector <= 64) {
+        if (selector <= 66) {
             return 'Singer';
         }
 
         // 10%
-        if (selector <= 74) {
-            return 'Grin';
+        if (selector <= 76) {
+            return 'Worried';
         }
 
-        // 10%
+        // 8%
         if (selector <= 84) {
             return 'Fangs';
         }
@@ -305,158 +305,98 @@ contract NornirResolver {
 	 * @return the name of the Viking's Top asset
 	 */
 	function resolveTop(uint256 selector) internal pure returns (string memory) {
-		/* Tattered - 30% overall */
-        // 6%
-        if (selector <= 5) {
+		// 10%
+        if (selector <= 9) {
             return 'Tattered (Blue)';
         }
 
-        // 6%
-        if (selector <= 11) {
-            return 'Tattered (Dark Grey)';
+        // 10%
+        if (selector <= 19) {
+            return 'Strap';
         }
 
-        // 6%
-        if (selector <= 17) {
-            return 'Tattered (Light Grey)';
-        }
-
-        // 6%
-        if (selector <= 23) {
-            return 'Tattered (Purple)';
-        }
-
-        // 4%
+        // 8%
         if (selector <= 27) {
+            return 'Tattered (Grey)';
+        }
+
+        // 8%
+        if (selector <= 35) {
+            return 'Gorget';
+        }
+
+        // 7%
+        if (selector <= 42) {
             return 'Tattered (Red)';
         }
 
-        // 2%
-        if (selector <= 29) {
-            return 'Tattered (Yellow)';
-        }
-
-        /* Tank Top - 20% overall */
-        // 4%
-        if (selector <= 33) {
-            return 'Tank Top (Blue)';
-        }
-
-        // 4%
-        if (selector <= 37) {
-            return 'Tank Top (Dark Grey)';
-        }
-
-        // 4%
-        if (selector <= 41) {
-            return 'Tank Top (Green)';
-        }
-
-        // 3%
-        if (selector <= 44) {
-            return 'Tank Top (Light Grey)';
-        }
-
-        // 3%
-        if (selector <= 47) {
-            return 'Tank Top (Pink)';
-        }
-
-        // 2%
+        // 7%
         if (selector <= 49) {
-            return 'Tank Top (Red)';
+            return 'V Neck (Pink)';
         }
 
-        /* Vest - 20% overall */
-        // 5%
-        if (selector <= 54) {
-            return 'Vest (Blue)';
+        // 7%
+        if (selector <= 56) {
+            return 'Shirt (Grey)';
+        }
+
+        // 6%
+        if (selector <= 62) {
+            return 'Traditional';
         }
 
         // 5%
-        if (selector <= 59) {
+        if (selector <= 67) {
+            return 'V Neck (Blue)';
+        }
+
+        // 5%
+        if (selector <= 72) {
+            return 'Shirt (Red)';
+        }
+
+        // 4%
+        if (selector <= 76) {
+            return 'Jacket (Pink)';
+        }
+
+        // 4%
+        if (selector <= 80) {
+            return 'Jacket (Grey)';
+        }
+
+        // 4%
+        if (selector <= 84) {
             return 'Vest (Green)';
         }
 
-        // 5%
-        if (selector <= 64) {
+        // 4%
+        if (selector <= 88) {
             return 'Vest (Pink)';
         }
 
         // 3%
-        if (selector <= 67) {
-            return 'Vest (White)';
+        if (selector <= 91) {
+            return 'V Neck (Grey)';
+        }
+
+        // 3%
+        if (selector <= 94) {
+            return 'Shirt (Blue)';
         }
 
         // 2%
-        if (selector <= 69) {
+        if (selector <= 96) {
+            return 'Jacket (Purple)';
+        }
+
+        // 2%
+        if (selector <= 98) {
             return 'Vest (Yellow)';
         }
 
-        /* Winter Jacket - 15% overall */
-        // 3%
-        if (selector <= 72) {
-            return 'Winter Jacket (Blue)';
-        }
-
-        // 3%
-        if (selector <= 75) {
-            return 'Winter Jacket (Dark Grey)';
-        }
-
-        // 3%
-        if (selector <= 78) {
-            return 'Winter Jacket (Green)';
-        }
-
-        // 2%
-        if (selector <= 80) {
-            return 'Winter Jacket (Light Grey)';
-        }
-
-        // 2%
-        if (selector <= 82) {
-            return 'Winter Jacket (Pink)';
-        }
-
-        // 2%
-        if (selector <= 84) {
-            return 'Winter Jacket (Purple)';
-        }
-
-        /* Fitted Shirt - 10% overall */
-        // 2%
-        if (selector <= 86) {
-            return 'Fitted Shirt (Blue)';
-        }
-
-        // 2%
-        if (selector <= 88) {
-            return 'Fitted Shirt (Green)';
-        }
-
-        // 2%
-        if (selector <= 90) {
-            return 'Fitted Shirt (Grey)';
-        }
-
-        // 2%
-        if (selector <= 92) {
-            return 'Fitted Shirt (Pink)';
-        }
-
         // 1%
-        if (selector <= 93) {
-            return 'Fitted Shirt (Red)';
-        }
-
-        // 1%
-        if (selector <= 94) {
-            return 'Fitted Shirt (Yellow)';
-        }
-
-        /* Strapped - 5% */
-        return 'Strapped';
+        return 'Pendant';
 	}
 
 	/**
@@ -469,29 +409,30 @@ contract NornirResolver {
 	 * @return the name of the Viking's Boots asset
 	 */
 	function resolveBoots(uint256 selector, string memory condition) internal pure returns (string memory) {
+		// (10%)
 		if (strEqual(condition, 'Standard')) return condition;
 
-		// 35%
-        if (selector <= 34) {
+		// 30% (28% overall)
+        if (selector <= 29) {
             return 'Leather';
         }
 
-        // 25%
-        if (selector <= 59) {
+        // 25% (23% overall)
+        if (selector <= 54) {
             return 'Laced';
         }
 
-        // 20%
+        // 25% (23% overall)
         if (selector <= 79) {
             return 'Sandals';
         }
 
-        // 12%
+        // 12% (10% overall)
         if (selector <= 91) {
             return 'Tailored';
         }
 
-        // 8%
+        // 8% (6% overall)
         return 'Steel Capped';
 	}
 
@@ -505,29 +446,30 @@ contract NornirResolver {
 	 * @return the name of the Viking's Bottoms asset
 	 */
 	function resolveBottoms(uint256 selector, string memory condition) internal pure returns (string memory) {
+		// (10%)
 		if (strEqual(condition, 'Standard')) return condition;
 
-		// 35%
-        if (selector <= 34) {
+		// 30% (28% overall)
+        if (selector <= 29) {
             return 'Shorts';
         }
 
-        // 25%
-        if (selector <= 59) {
+        // 25% (23% overall)
+        if (selector <= 54) {
             return 'Buckled';
         }
 
-        // 20%
+        // 25% (23% overall)
         if (selector <= 79) {
             return 'Patchwork';
         }
 
-        // 12%
+        // 12% (10% overall)
         if (selector <= 91) {
             return 'Short Shorts';
         }
 
-        // 8%
+        // 8% (6% overall)
         return 'Kingly';
 	}
 
@@ -541,29 +483,30 @@ contract NornirResolver {
 	 * @return the name of the Viking's Helmet asset
 	 */
 	function resolveHelmet(uint256 selector, string memory condition) internal pure returns (string memory) {
+		// (10%)
 		if (strEqual(condition, 'None')) return condition;
 
-		// 35%
-        if (selector <= 34) {
+		// 30% (28% overall)
+        if (selector <= 29) {
             return 'Cap';
         }
 
-        // 25%
-        if (selector <= 59) {
+        // 25% (23% overall)
+        if (selector <= 54) {
             return 'Horned';
         }
 
-        // 20%
+        // 25% (23% overall)
         if (selector <= 79) {
             return 'Headband';
         }
 
-        // 12%
+        // 12% (10% overall)
         if (selector <= 91) {
             return 'Spiky';
         }
 
-        // 8%
+        // 8% (6% overall)
         return 'Bejeweled';
 	}
 
@@ -577,29 +520,30 @@ contract NornirResolver {
 	 * @return the name of the Viking's Shield asset
 	 */
 	function resolveShield(uint256 selector, string memory condition) internal pure returns (string memory) {
+		// (10%)
 		if (strEqual(condition, 'None')) return condition;
 
-		// 35%
-        if (selector <= 34) {
+		// 30% (28% overall)
+        if (selector <= 29) {
             return 'Wooden';
         }
 
-        // 25%
-        if (selector <= 59) {
+        // 25% (23% overall)
+        if (selector <= 54) {
             return 'Ornate';
         }
 
-        // 20%
+        // 25% (23% overall)
         if (selector <= 79) {
-            return 'Reinforced';
-        }
-
-        // 12%
-        if (selector <= 91) {
             return 'Scutum';
         }
 
-        // 8%
+        // 12% (10% overall)
+        if (selector <= 91) {
+            return 'Reinforced';
+        }
+
+        // 8% (6% overall)
         return 'Bones';
 	}
 
@@ -613,34 +557,40 @@ contract NornirResolver {
 	 * @return the name of the Viking's Weapon asset
 	 */
 	function resolveWeapon(uint256 selector, string memory condition) internal pure returns (string memory) {
+		// (10%)
 		if (strEqual(condition, 'None')) return condition;
 
-		// 35%
-        if (selector <= 34) {
-            return 'Plank';
-        }
-
-        // 25%
-        if (selector <= 59) {
+		// 23% (~21.572% overall)
+        if (selector <= 22) {
             return 'Axe';
         }
 
-        // 20%
-        if (selector <= 79) {
-            return 'Sword';
-        }
-
-        // 10%
-        if (selector <= 89) {
+        // 20% (~18.572% overall))
+        if (selector <= 42) {
             return 'Trident';
         }
 
-        // 6%
-        if (selector <= 95) {
+        // 18% (~16.572% overall)
+        if (selector <= 60) {
+            return 'Plank';
+        }
+
+        // 16% (~14.572% overall)
+        if (selector <= 76) {
+            return 'Sword';
+        }
+
+        // 12% (~10.572% overall)
+        if (selector <= 88) {
+            return 'Bow';
+        }
+
+        // 7% (~5.572% overall)
+        if (selector < 95) {
             return 'Bat';
         }
 
-        // 4%
+        // 4% (~2.572% overall)
         return 'Hammer';
 	}
 
