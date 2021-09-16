@@ -35,18 +35,18 @@ contract Nornir is
 	event NameChange(uint256 id, string name);
 
 	uint16 public constant MAX_VIKINGS = 9873;
-	uint16 public constant MAX_PRESALE_VIKINGS = 500;
 	uint16 public constant MAX_BULK = 50;
-	uint16 public constant MAX_PRESALE_BALANCE = 5;
 	uint16 public constant MAX_OWNER_MINTS = 40;
+	uint16 internal constant MAX_PRESALE_VIKINGS = 500;
+	uint16 internal constant MAX_PRESALE_MINTS = 5;
 
 	// TODO polygon addresses
 	// address public constant TREASURY = 0x10073Fb6D644113469bD8e30404BCaD6715388ff;
-	// address public constant WETH_ADDRESS = 0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619;
+	// address internal constant WETH_ADDRESS = 0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619;
 
 	// TODO mumbai addresses
 	address public constant TREASURY = 0xCD6a2Db199c378B07C889D44B61Cb5867Ff5Ae41;
-	address public constant WETH_ADDRESS = 0xA6FA4fB5f76172d178d61B04b0ecd319C5d1C0aa;
+	address internal constant WETH_ADDRESS = 0xA6FA4fB5f76172d178d61B04b0ecd319C5d1C0aa;
 
 	/* Contracts to be instantiated for internal use */
 	IWeth public wETHContract;
@@ -83,12 +83,14 @@ contract Nornir is
 	mapping(uint256 => NornirStructs.VikingConditions) public vikingConditions;
 	/* Mapping of tokenId => VRF-provided randomNumber for facilitating a breakup of the generation procedure */
 	mapping(uint256 => uint256) public vikingIdToRandomNumber;
+	/** Mapping of address => boolean for whitelisting wallets for presale */
+	mapping(address => bool) public presaleWhitelist;
+	/** Mapping of address => count for capping whitelisted wallet purchases in presale */
+	mapping(address => uint256) public presaleMintCounts;
 	/* Mapping of VRF requestId => tokenId for facilitating a breakup of the generation procedure */
 	mapping(bytes32 => uint256) internal requestIdToVikingId;
 	/* Mapping of name => boolean for facilitating unique-name validation */
 	mapping(bytes32 => bool) internal vikingNames;
-	/** Mapping of address => boolean for whitelisting wallets for presale */
-	mapping(address => bool) public presaleWhitelist;
 
 	/**
 	 * Constructor - set up our external contracts and configure ourselves for VRF usage
@@ -287,7 +289,7 @@ contract Nornir is
 
 		uint256 supply = totalSupply();
 		uint16 limit = presaleActive ? MAX_PRESALE_VIKINGS : MAX_VIKINGS;
-		uint16 max = presaleActive ? MAX_PRESALE_BALANCE : MAX_BULK;
+		uint16 max = presaleActive ? MAX_PRESALE_MINTS : MAX_BULK;
 
 		require(supply < limit, 'Sold out');
 		require(count > 0, 'Mint at least 1 Viking');
@@ -295,12 +297,9 @@ contract Nornir is
 		require(supply + count <= limit, 'Mint exceeds limit');
 
 		if (presaleActive) {
-			// additional checks for presale mints
-			uint256 balance = balanceOf(msg.sender);
-
 			require(presaleWhitelist[msg.sender], 'Wallet not whitelisted');
-			require(balance < max, 'Presale limit reached');
-			require(balance + count <= max, 'Mint exceeds presale limit');
+			require(presaleMintCounts[msg.sender] < max, 'Presale limit reached');
+			require(presaleMintCounts[msg.sender] + count <= max, 'Mint exceeds presale limit');
 		}
 
 		if (isOwner) {
@@ -345,6 +344,10 @@ contract Nornir is
 
 			if (isOwner) {
 				ownerMintedCount++;
+			}
+
+			if (presaleActive) {
+				presaleMintCounts[msg.sender]++;
 			}
 		}
 
