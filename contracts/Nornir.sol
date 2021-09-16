@@ -36,25 +36,27 @@ contract Nornir is
 
 	uint16 public constant MAX_VIKINGS = 9873;
 	uint16 public constant MAX_BULK = 50;
-	uint256 public constant MAX_OWNER_MINTS = 40;
+	uint16 public constant MAX_OWNER_MINTS = 50;
+	uint16 internal constant MAX_PRESALE_VIKINGS = 505;
+	uint16 internal constant MAX_PRESALE_MINTS = 5;
 
 	// TODO polygon addresses
 	// address public constant TREASURY = 0x10073Fb6D644113469bD8e30404BCaD6715388ff;
-	// address public constant WETH_ADDRESS = 0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619;
+	// address internal constant WETH_ADDRESS = 0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619;
 
 	// TODO mumbai addresses
 	address public constant TREASURY = 0xCD6a2Db199c378B07C889D44B61Cb5867Ff5Ae41;
-	address public constant WETH_ADDRESS = 0xA6FA4fB5f76172d178d61B04b0ecd319C5d1C0aa;
+	address internal constant WETH_ADDRESS = 0xA6FA4fB5f76172d178d61B04b0ecd319C5d1C0aa;
 
 	/* Contracts to be instantiated for internal use */
 	IWeth public wETHContract;
 	INornirResolver public nornirResolverContract;
 
 	// TODO polygon launch block
-	// uint256 public launchBlock = 19498000;
+	// uint256 public launchBlock = 19435000;
 
 	// TODO mumbai launch block
-	uint256 public launchBlock = 18879857;
+	uint256 public launchBlock = 19500000;
 
 	// TODO live baseURI
 	// string public baseURI = 'https://api.cryptovikings.io/viking/';
@@ -63,6 +65,7 @@ contract Nornir is
 	string public baseURI = 'http://localhost:8080/viking/';
 
 	bool public mintingPaused = false;
+	bool public presaleActive = false;
 	uint256 public generatedVikingCount = 0;
 	uint256 public resolvedVikingCount = 0;
 	uint256 public ownerMintedCount = 0;
@@ -80,6 +83,10 @@ contract Nornir is
 	mapping(uint256 => NornirStructs.VikingConditions) public vikingConditions;
 	/* Mapping of tokenId => VRF-provided randomNumber for facilitating a breakup of the generation procedure */
 	mapping(uint256 => uint256) public vikingIdToRandomNumber;
+	/** Mapping of address => boolean for whitelisting wallets for presale */
+	mapping(address => bool) public presaleWhitelist;
+	/** Mapping of address => count for capping whitelisted wallet purchases in presale */
+	mapping(address => uint256) public presaleMintCounts;
 	/* Mapping of VRF requestId => tokenId for facilitating a breakup of the generation procedure */
 	mapping(bytes32 => uint256) internal requestIdToVikingId;
 	/* Mapping of name => boolean for facilitating unique-name validation */
@@ -129,20 +136,22 @@ contract Nornir is
 	 *
 	 * @param qty the number of Vikings to get the price for
 	 */
-	function calculatePrice(uint256 qty) public pure returns (uint256) {
+	function calculatePrice(uint256 qty) public view returns (uint256) {
 		require(qty > 0 && qty <= MAX_BULK, 'Can only price 1-50 Vikings');
 
-		uint256 price;
-
-		if (qty >= 25) {
-			price = 73000000000000000; // 0.073 ETH
-		} else if (qty >= 10) {
-			price = 87300000000000000; // 0.0873 ETH
-		} else {
-			price = 98730000000000000; // 0.09873 ETH
+		if (presaleActive) {
+			return 50000000000000000 * qty; // 0.05 WETH each
 		}
 
-		return price * qty;
+		if (qty >= 25) {
+			return 65000000000000000 * qty; // 0.065 WETH each
+		}
+
+		if (qty >= 10) {
+			return 75000000000000000 * qty; // 0.075 WETH each
+		}
+
+		return 85000000000000000 * qty; // 0.085 WETH each
 	}
 
 	/**
@@ -205,17 +214,17 @@ contract Nornir is
 	}
 
 	/**
-	 * Protected method for pausing minting
+	 * Protected method for toggling mintingPaused
 	 */
-	function pause() public onlyOwner {
-		mintingPaused = true;
+	function togglePaused() public onlyOwner {
+		mintingPaused = !mintingPaused;
 	}
 
 	/**
-	 * Protected method for unpausing minting
+	 * Protected method for toggling the presale
 	 */
-	function unpause() public onlyOwner {
-		mintingPaused = false;
+	function togglePresale() public onlyOwner {
+		presaleActive = !presaleActive;
 	}
 
 	/**
@@ -223,6 +232,13 @@ contract Nornir is
 	 */
 	function changeBaseURI(string memory newURI) public onlyOwner {
 		baseURI = newURI;
+	}
+
+	/**
+	 * Protected method for whitelisting a wallet address
+	 */
+	function whitelist(address wallet, bool status) public onlyOwner {
+		presaleWhitelist[wallet] = status;
 	}
 
 	/**
@@ -267,16 +283,29 @@ contract Nornir is
 	 * @param isOwner whether or not we're validating an owner mint
 	 */
 	function validateMint(uint256 count, bool isOwner) internal view {
-		require(block.number >= launchBlock, 'Vikings not yet released');
+		require(presaleActive || block.number >= launchBlock, 'Vikings not yet released');
 		require(!mintingPaused, 'Minting is paused');
 		require(address(nornirResolverContract) != address(0), 'NornirResolver not set');
-		require(totalSupply() < MAX_VIKINGS, 'Sale complete. Vikings sold out');
-		require(count > 0 && count <= MAX_BULK, 'Can only mint 1-50 Vikings');
-		require((totalSupply() + count) <= MAX_VIKINGS, 'Mint exceeds MAX_VIKINGS limit');
+
+		uint256 supply = totalSupply();
+		uint16 limit = presaleActive ? MAX_PRESALE_VIKINGS : MAX_VIKINGS;
+		uint16 max = presaleActive ? MAX_PRESALE_MINTS : MAX_BULK;
+
+		require(supply < limit, 'Sold out');
+		require(count > 0, 'Mint at least 1 Viking');
+		require(count <= max, 'Too many Vikings');
+		require(supply + count <= limit, 'Mint exceeds limit');
+
+		if (presaleActive) {
+			require(presaleWhitelist[msg.sender], 'Wallet not whitelisted');
+			require(presaleMintCounts[msg.sender] < max, 'Presale limit reached');
+			require(presaleMintCounts[msg.sender] + count <= max, 'Mint exceeds presale limit');
+		}
 
 		if (isOwner) {
+			// additional checks for owner mints
 			require(ownerMintedCount < MAX_OWNER_MINTS, 'Max owner mints reached');
-			require((ownerMintedCount + count) <= MAX_OWNER_MINTS, 'Mint exceeds MAX_OWNER_MINTS');
+			require(ownerMintedCount + count <= MAX_OWNER_MINTS, 'Mint exceeds MAX_OWNER_MINTS');
 		}
 	}
 
@@ -315,6 +344,10 @@ contract Nornir is
 
 			if (isOwner) {
 				ownerMintedCount++;
+			}
+
+			if (presaleActive) {
+				presaleMintCounts[msg.sender]++;
 			}
 		}
 
@@ -430,16 +463,5 @@ contract Nornir is
 
 	function supportsInterface(bytes4 interfaceId) public view override(ERC721, ERC721Enumerable) returns (bool) {
 		return super.supportsInterface(interfaceId);
-	}
-
-	/**
-	 * Override isApprovedForAll as a convenience for auto-allowing OpenSea's Polygon proxy Contract
-	 */
-	function isApprovedForAll(address _owner, address _operator) public override view returns (bool isOperator) {
-        if (_operator == address(0x58807baD0B376efc12F5AD86aAc70E78ed67deaE)) {
-            return true;
-        }
-
-        return ERC721.isApprovedForAll(_owner, _operator);
 	}
 }
